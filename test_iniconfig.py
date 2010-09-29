@@ -16,7 +16,7 @@ def pytest_funcarg__tokens(request):
 parsings = {
     'section': (
         '[section]',
-        [ (1, 'section', None, None)]
+        [(1, 'section', None, None)]
     ),
     'value': (
         'value = 1',
@@ -25,6 +25,14 @@ parsings = {
     'value in section': (
         '[section]\nvalue=1',
         [(1, 'section', None, None), (2, 'section', 'value', '1')]
+    ),
+    'value with continuation': (
+        'names =\n Alice\n Bob',
+        [(1, None, 'names', 'Alice\nBob')]
+    ),
+    'blank line':(
+        '[section]\n\nvalue=1',
+        [(1, 'section', None, None), (3, 'section', 'value', '1')]
     ),
 
 
