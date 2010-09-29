@@ -2,7 +2,8 @@
 
 def parseline(line):
     print repr(line)
-    line = line.rstrip()
+    #XXX: should we support escaping #
+    line = line.split('#')[0].rstrip()
     
     #blank lines
     if not line:
@@ -32,9 +33,17 @@ def _parse(data):
         elif name is not None and data is None:
             section = name
             result.append((lineno, section, None, None))
-        elif name is None:
+        elif name is None and data is not None:
+            if not result:
+                raise ValueError(
+                    'unexpected value continuation in line %s'%lineno)
+
             last = result.pop()
-            last_data = last[-1]
+            last_name, last_data = last[-2:]
+            if last_name is None:
+                raise ValueError(
+                    'unexpected value continuation in line %s'%lineno)
+
             if last_data:
                 data = '%s\n%s' % (last_data, data)
             result.append(last[:-1] + (data,))
