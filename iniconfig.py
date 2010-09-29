@@ -1,6 +1,7 @@
 
 
-def parseline(line):
+def parseline(line, lineno):
+    
     # comments
     #XXX: should we support escaping #
     line = line.split('#')[0].rstrip()
@@ -18,6 +19,7 @@ def parseline(line):
     # continuation
     elif line[0].isspace():
         return None, line.strip()
+    raise ValueError('unexpected line %s %r'%(lineno, line))
 
 
 def _parse(data):
@@ -26,7 +28,7 @@ def _parse(data):
     for line_index, line in enumerate(data.splitlines(True)):
         lineno = line_index+1
 
-        name, data = parseline(line)
+        name, data = parseline(line, lineno)
         # new value
         if name is not None and data is not None:
             result.append((lineno, section, name, data))
