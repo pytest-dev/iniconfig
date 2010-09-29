@@ -2,17 +2,6 @@ import py
 from iniconfig import _parse as parse
 
 
-def pytest_funcarg__tokens(request):
-    """
-    * detend the docstring
-    * strip the leading line
-    * parse to tokens
-    """
-    doc = request.function.__doc__
-    doc = py.std.textwrap.dedent(doc)
-    return parse(doc.lstrip())
-
-
 check_tokens = {
     'section': (
         '[section]',
