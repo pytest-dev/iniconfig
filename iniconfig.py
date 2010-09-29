@@ -31,6 +31,8 @@ def _parse(data):
         if name is not None and data is not None:
             result.append((lineno, section, name, data))
         elif name is not None and data is None:
+            if not name:
+                raise ValueError('empty section name in line%s'%lineno)
             section = name
             result.append((lineno, section, None, None))
         elif name is None and data is not None:
