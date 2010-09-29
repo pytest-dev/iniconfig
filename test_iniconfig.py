@@ -82,3 +82,8 @@ def test_continuation_cant_be_after_section():
         parse('[section]\n Foo')
     assert 'line 2' in excinfo.value.args[0]
 
+def test_section_cant_be_empty():
+    with py.test.raises(ValueError) as excinfo:
+        parse('[]')
+
+
