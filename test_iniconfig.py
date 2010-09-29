@@ -86,4 +86,6 @@ def test_section_cant_be_empty():
     with py.test.raises(ValueError) as excinfo:
         parse('[]')
 
-
+def test_cant_handle_weird_lines():
+    with py.test.raises(ValueError) as excinfo:
+        parse('!!')
