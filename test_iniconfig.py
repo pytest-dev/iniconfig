@@ -13,7 +13,7 @@ def pytest_funcarg__tokens(request):
     return parse(doc.lstrip())
 
 
-parsings = {
+check_tokens = {
     'section': (
         '[section]',
         [(1, 'section', None, None)]
@@ -59,7 +59,7 @@ parsings = {
 
 def pytest_generate_tests(metafunc):
     if 'input' in metafunc.funcargnames:
-        for name, (input, expected) in parsings.items():
+        for name, (input, expected) in check_tokens.items():
             metafunc.addcall(id=name, funcargs={
                 'input': input,
                 'expected': expected,
@@ -67,7 +67,7 @@ def pytest_generate_tests(metafunc):
 
 
 
-def test_parse(input, expected):
+def test_tokenize(input, expected):
     parsed = parse(input)
     assert parsed == expected
 
