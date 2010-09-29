@@ -3,15 +3,21 @@
 def parseline(line):
     print repr(line)
     line = line.rstrip()
+    
+    #blank lines
+    if not line:
+        return None, None
     # section
     if line[0] == '[' and line[-1] == ']':
         return line[1:-1], None
+    # value
     elif not line[0].isspace() and '=' in line:
         name, value = line.split('=', 2)
         return name.strip(), value.strip()
-        
+    # continuation
+    elif line[0].isspace():
+        return None, line.strip()
 
-    return None, None
 
 def _parse(data):
     result = []
@@ -21,11 +27,17 @@ def _parse(data):
 
         name, data = parseline(line)
         print repr((name, data))
-        if data is None:
+        if name is not None and data is not None:
+            result.append((lineno, section, name, data))
+        elif name is not None and data is None:
             section = name
             result.append((lineno, section, None, None))
-        else:
-            result.append((lineno, section, name, data))
+        elif name is None:
+            last = result.pop()
+            last_data = last[-1]
+            if last_data:
+                data = '%s\n%s' % (last_data, data)
+            result.append(last[:-1] + (data,))
     print result
     return result
 
