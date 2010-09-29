@@ -72,7 +72,7 @@ def test_parse(input, expected):
     assert parsed == expected
 
 
-def test_continuation_needs_perceeding_name():
+def test_continuation_needs_perceeding_token():
     with py.test.raises(ValueError) as excinfo:
         parse(' Foo')
     assert 'line 1' in excinfo.value.args[0]
