@@ -1,11 +1,11 @@
 
 
 def parseline(line):
-    print repr(line)
+    # comments
     #XXX: should we support escaping #
     line = line.split('#')[0].rstrip()
-    
-    #blank lines
+
+    # blank lines
     if not line:
         return None, None
     # section
@@ -27,14 +27,16 @@ def _parse(data):
         lineno = line_index+1
 
         name, data = parseline(line)
-        print repr((name, data))
+        # new value
         if name is not None and data is not None:
             result.append((lineno, section, name, data))
+        # new section
         elif name is not None and data is None:
             if not name:
                 raise ValueError('empty section name in line%s'%lineno)
             section = name
             result.append((lineno, section, None, None))
+        # continuation
         elif name is None and data is not None:
             if not result:
                 raise ValueError(
@@ -49,6 +51,5 @@ def _parse(data):
             if last_data:
                 data = '%s\n%s' % (last_data, data)
             result.append(last[:-1] + (data,))
-    print result
     return result
 
