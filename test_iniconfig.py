@@ -135,4 +135,12 @@ def test_iniconfig_lineof():
     assert config.lineof('section', 'value') == 2
     assert config.lineof('section2','value') == 5
 
+def test_iniconfig_get_convert():
+    config= IniConfig(data='[section]\nint = 1\nfloat = 1.1')
+    assert config.get('section', 'int') == '1'
+    assert config.get('section', 'int', convert=int) == 1
 
+def test_iniconfig_get_missing():
+    config= IniConfig(data='[section]\nint = 1\nfloat = 1.1')
+    assert config.get('section', 'missing', default=1) == 1
+    assert config.get('section', 'missing') is None
