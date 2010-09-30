@@ -119,3 +119,20 @@ def test_iniconfig_duplicate_key_fails():
         IniConfig(data='[section]\nname = Alice\nname = bob')
 
     assert 'duplicate value' in excinfo.value.args[0]
+
+def test_iniconfig_lineof():
+    config = IniConfig(data=
+        '[section]\n'
+        'value = 1\n'
+        '[section2]\n'
+        '# comment\n'
+        'value =2'
+    )
+
+    assert config.lineof('missing') is None
+    assert config.lineof('section') == 1
+    assert config.lineof('section2') == 3
+    assert config.lineof('section', 'value') == 2
+    assert config.lineof('section2','value') == 5
+
+

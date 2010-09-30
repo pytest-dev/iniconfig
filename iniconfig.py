@@ -89,4 +89,6 @@ class IniConfig(object):
                     )
                 self.sections[section][name] = value
 
-
+    def lineof(self, section, name=None):
+        return self._sources.get((section, name))
+        
