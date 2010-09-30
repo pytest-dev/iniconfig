@@ -1,5 +1,5 @@
 
-__version__ = "1.0.dev0"
+__version__ = "0.1.dev0"
 
 class ParseError(Exception):
     def __init__(self, lineno, msg):
