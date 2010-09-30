@@ -1,5 +1,5 @@
 import py
-from iniconfig import _parse as parse
+from iniconfig import _parse as parse, IniConfig
 
 
 check_tokens = {
@@ -93,3 +93,18 @@ def test_section_cant_be_empty():
 def test_error_on_weird_lines(line):
     with py.test.raises(ValueError) as excinfo:
         parse('!!')
+
+
+
+def test_iniconfig_from_file(tmpdir):
+    path = tmpdir/'test.txt'
+    path.write('[metadata]\nname=1')
+
+    config = IniConfig(path=str(path))
+    config2 = IniConfig(fp=path) # abuse py.path.local.read
+    config3 = IniConfig(data=path.read())
+
+def test_iniconfig_section_first(tmpdir):
+    with py.test.raises(ValueError) as excinfo:
+        IniConfig(data='name=1')
+    assert excinfo.value.args[0] == "expected section in line 1, got name 'name'"
