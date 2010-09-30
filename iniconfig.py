@@ -86,13 +86,13 @@ class SectionWrapper(object):
             yield name, self[name]
 
 
-
 class IniConfig(object):
-    def __init__(self, path=None, fp=None, data=None):
-        if path:
-            fp = open(path)
-        if fp:
-            data = fp.read()
+    def __init__(self, path, data=None):
+        path = str(path) # convenience
+        if data is None:
+            f = open(path)
+            data = f.read()
+            f.close()
         tokens = _parse(data)
         if tokens[0][1] is None:
             raise ParseError(tokens[0][0],
