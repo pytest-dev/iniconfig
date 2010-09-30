@@ -100,31 +100,33 @@ def test_iniconfig_from_file(tmpdir):
     path = tmpdir/'test.txt'
     path.write('[metadata]\nname=1')
 
-    config = IniConfig(path=str(path))
-    config2 = IniConfig(fp=path) # abuse py.path.local.read
-    config3 = IniConfig(data=path.read())
+    config = IniConfig(path=path)
+    assert list(config.sections) == ['metadata']
+    config = IniConfig(path, "[diff]")
+    assert list(config.sections) == ['diff']
+    py.test.raises(TypeError, "IniConfig(data=path.read())")
 
 def test_iniconfig_section_first(tmpdir):
     excinfo = py.test.raises(ParseError, """
-        IniConfig(data='name=1')
+        IniConfig("x", data='name=1')
     """)
     assert excinfo.value.msg == "expected section, got name 'name'"
 
 def test_iniconig_section_duplicate_fails():
     excinfo = py.test.raises(ParseError, r"""
-        IniConfig(data='[section]\n[section]')
+        IniConfig("x", data='[section]\n[section]')
     """)
     assert 'duplicate section' in str(excinfo.value)
 
 def test_iniconfig_duplicate_key_fails():
     excinfo = py.test.raises(ParseError, r"""
-        IniConfig(data='[section]\nname = Alice\nname = bob')
+        IniConfig("x", data='[section]\nname = Alice\nname = bob')
     """)
 
     assert 'duplicate name' in str(excinfo.value)
 
 def test_iniconfig_lineof():
-    config = IniConfig(data=
+    config = IniConfig("x.ini", data=
         '[section]\n'
         'value = 1\n'
         '[section2]\n'
@@ -139,29 +141,29 @@ def test_iniconfig_lineof():
     assert config.lineof('section2','value') == 5
 
 def test_iniconfig_get_convert():
-    config= IniConfig(data='[section]\nint = 1\nfloat = 1.1')
+    config= IniConfig("x", data='[section]\nint = 1\nfloat = 1.1')
     assert config.get('section', 'int') == '1'
     assert config.get('section', 'int', convert=int) == 1
 
 def test_iniconfig_get_missing():
-    config= IniConfig(data='[section]\nint = 1\nfloat = 1.1')
+    config= IniConfig("x", data='[section]\nint = 1\nfloat = 1.1')
     assert config.get('section', 'missing', default=1) == 1
     assert config.get('section', 'missing') is None
 
-
 def test_section_get():
-    config = IniConfig(data='[section]\nvalue=1')
+    config = IniConfig("x", data='[section]\nvalue=1')
     section = config['section']
     assert section.get('value', convert=int) == 1
-    assert section.get('missing', default=1) == 1
+    assert section.get('value', 1) == "1"
+    assert section.get('missing', 2) == 2
 
 def test_get_missing_section():
-    config = IniConfig(data='[section]\nvalue=1')
+    config = IniConfig("x", data='[section]\nvalue=1')
     py.test.raises(KeyError,'config["other"]')
     config.get_section('missing') #
 
 def test_section_getitem():
-    config = IniConfig(data='[section]\nvalue=1')
+    config = IniConfig("x", data='[section]\nvalue=1')
 
     missing=config.get_section('test')
     py.test.raises(KeyError, 'missing["something"]')
@@ -169,21 +171,21 @@ def test_section_getitem():
     assert config['section']['value'] == '1'
 
 def test_section_iter():
-    config = IniConfig(data='[section]\nvalue=1')
+    config = IniConfig("x", data='[section]\nvalue=1')
     names = list(config['section'])
     assert names == ['value']
     items = list(config['section'].items())
     assert items==[('value', '1')]
 
 def test_config_iter():
-    config = IniConfig(data='[section]\nvalue=1')
+    config = IniConfig("x.ini", data='[section]\nvalue=1')
     assert list(config) == ['section']
     for name, section in config.items():
         assert section.name == name
 
 
 def test_iter_file_order():
-    config = IniConfig(data="""
+    config = IniConfig("x.ini", data="""
 [section2] #cpython dict ordered before section
 value = 1
 value2 = 2 # dict ordered before value
