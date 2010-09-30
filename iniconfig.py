@@ -1,4 +1,5 @@
 
+__version__ = "1.0"
 
 def parseline(line, lineno):
     
