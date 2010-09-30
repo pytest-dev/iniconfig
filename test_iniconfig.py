@@ -155,4 +155,5 @@ def test_section_get():
 def test_get_missing_section():
     config = IniConfig(data='[section]\nvalue=1')
     py.test.raises(KeyError,'config["other"]')
+    config.get_section('missing') #
 
