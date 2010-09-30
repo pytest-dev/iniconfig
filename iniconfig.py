@@ -91,4 +91,12 @@ class IniConfig(object):
 
     def lineof(self, section, name=None):
         return self._sources.get((section, name))
-        
+
+    def get(self, section, name, convert=str, default=None):
+        try:
+            return convert(self.sections[section][name])
+        except KeyError:
+            return default
+
+
+
