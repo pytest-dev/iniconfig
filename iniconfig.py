@@ -56,6 +56,13 @@ def _parse(data):
             result.append(last[:-1] + (data,))
     return result
 
+class SectionWrapper(object):
+    def __init__(self, config, name):
+        self.config = config
+        self.name = name
+
+    def get(self, key, convert=str, default=None):
+        return self.config.get(self.name, key, convert=convert, default=default)
 
 class IniConfig(object):
     def __init__(self, path=None, fp=None, data=None):
@@ -99,5 +106,10 @@ class IniConfig(object):
         except KeyError:
             return default
 
+    def __getitem__(self, name):
+        if name not in self.sections:
+            raise KeyError(name)
+        return SectionWrapper(self, name)
 
-
+    def get_section(self, name):
+        return SectionWrapper(self, name)

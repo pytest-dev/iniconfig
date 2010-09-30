@@ -144,3 +144,16 @@ def test_iniconfig_get_missing():
     config= IniConfig(data='[section]\nint = 1\nfloat = 1.1')
     assert config.get('section', 'missing', default=1) == 1
     assert config.get('section', 'missing') is None
+
+
+def test_section_get():
+    config = IniConfig(data='[section]\nvalue=1')
+    section = config['section']
+    assert section.get('value', convert=int) == 1
+    assert section.get('missing', default=1) == 1
+
+def test_get_missing_section():
+    config = IniConfig(data='[section]\nvalue=1')
+    py.test.raises(KeyError,'config["other"]')
+    config.get_section('missing') #
+
