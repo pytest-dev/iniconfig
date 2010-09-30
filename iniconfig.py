@@ -55,3 +55,20 @@ def _parse(data):
             result.append(last[:-1] + (data,))
     return result
 
+
+class IniConfig(object):
+    def __init__(self, path=None, fp=None, data=None):
+        if path:
+            fp = open(path)
+        if fp:
+            data = fp.read()
+        tokens = _parse(data)
+        if tokens[0][1] is None:
+            raise ValueError('expected section in line %s, got name %r'%(
+                tokens[0][0],
+                tokens[0][2],
+            ))
+        self._initialize(tokens)
+
+    def _initialize(self, tokens):
+        pass
