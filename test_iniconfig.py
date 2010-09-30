@@ -63,19 +63,10 @@ def pytest_generate_tests(metafunc):
     elif hasattr(metafunc.function, 'multi'):
         kwargs = metafunc.function.multi.kwargs
         names, values = zip(*kwargs.items())
-        
-        def toseq(item):
-            if not isinstance(item, (list, tuple)):
-                return item,
-            else:
-                return item
         from itertools import product
-
-        values = product(*map(toseq, values))
+        values = product(*values)
         for p in values:
             metafunc.addcall(funcargs=dict(zip(names, p)))
-
-
 
 
 def test_tokenize(input, expected):
