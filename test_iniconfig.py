@@ -161,3 +161,23 @@ def test_get_missing_section():
     py.test.raises(KeyError,'config["other"]')
     config.get_section('missing') #
 
+def test_section_getitem():
+    config = IniConfig(data='[section]\nvalue=1')
+
+    missing=config.get_section('test')
+    py.test.raises(KeyError, 'missing["something"]')
+
+    assert config['section']['value'] == '1'
+
+def test_section_iter():
+    config = IniConfig(data='[section]\nvalue=1')
+    names = list(config['section'])
+    assert names == ['value']
+    items = list(config['section'].items())
+    assert items==[('value', '1')]
+
+def test_config_iter():
+    config = IniConfig(data='[section]\nvalue=1')
+    assert list(config) == ['section']
+    for name, section in config.items():
+        assert section.name == name
