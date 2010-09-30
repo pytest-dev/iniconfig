@@ -1,5 +1,5 @@
 import py
-from iniconfig import _parse as parse, IniConfig
+from iniconfig import _parse as parse, IniConfig, ParseError
 
 def pytest_generate_tests(metafunc):
     if 'input' in metafunc.funcargnames:
@@ -28,28 +28,28 @@ def cartesian_product(L,*lists):
 check_tokens = {
     'section': (
         '[section]',
-        [(1, 'section', None, None)]
+        [(0, 'section', None, None)]
     ),
     'value': (
         'value = 1',
-        [(1, None, 'value', '1')]
+        [(0, None, 'value', '1')]
     ),
     'value in section': (
         '[section]\nvalue=1',
-        [(1, 'section', None, None), (2, 'section', 'value', '1')]
+        [(0, 'section', None, None), (1, 'section', 'value', '1')]
     ),
     'value with continuation': (
         'names =\n Alice\n Bob',
-        [(1, None, 'names', 'Alice\nBob')]
+        [(0, None, 'names', 'Alice\nBob')]
     ),
     'value with aligned continuation': (
         'names = Alice\n'
         '        Bob',
-        [(1, None, 'names', 'Alice\nBob')]
+        [(0, None, 'names', 'Alice\nBob')]
     ),
     'blank line':(
         '[section]\n\nvalue=1',
-        [(1, 'section', None, None), (3, 'section', 'value', '1')]
+        [(0, 'section', None, None), (2, 'section', 'value', '1')]
     ),
     'comment': (
         '# comment',
@@ -57,12 +57,12 @@ check_tokens = {
     ),
     'comment on value': (
         'value = 1 # comment',
-        [(1, None, 'value', '1')]
+        [(0, None, 'value', '1')]
     ),
 
     'comment on section': (
         '[section] #comment',
-        [(1, 'section', None, None)]
+        [(0, 'section', None, None)]
     ),
 
 }
@@ -72,17 +72,20 @@ def test_tokenize(input, expected):
     parsed = parse(input)
     assert parsed == expected
 
+def test_ParseError():
+    e = ParseError(0, "hello")
+    assert str(e) == "0: hello"
 
 def test_continuation_needs_perceeding_token():
-    excinfo = py.test.raises(ValueError, "parse(' Foo')")
-    assert 'line 1' in excinfo.value.args[0]
+    excinfo = py.test.raises(ParseError, "parse(' Foo')")
+    assert excinfo.value.lineno == 0
 
 def test_continuation_cant_be_after_section():
-    excinfo = py.test.raises(ValueError, "parse('[section]\\n Foo')")
-    assert 'line 2' in excinfo.value.args[0]
+    excinfo = py.test.raises(ParseError, "parse('[section]\\n Foo')")
+    assert excinfo.value.lineno == 1
 
 def test_section_cant_be_empty():
-    excinfo = py.test.raises(ValueError, "parse('[]')")
+    excinfo = py.test.raises(ParseError, "parse('[]')")
 
 @py.test.mark.multi(line=[
     '!!',
@@ -91,7 +94,7 @@ def test_section_cant_be_empty():
     '[uhm =',
     ])
 def test_error_on_weird_lines(line):
-    excinfo = py.test.raises(ValueError, parse, line)
+    excinfo = py.test.raises(ParseError, parse, line)
 
 def test_iniconfig_from_file(tmpdir):
     path = tmpdir/'test.txt'
@@ -102,25 +105,23 @@ def test_iniconfig_from_file(tmpdir):
     config3 = IniConfig(data=path.read())
 
 def test_iniconfig_section_first(tmpdir):
-    excinfo = py.test.raises(ValueError, """
+    excinfo = py.test.raises(ParseError, """
         IniConfig(data='name=1')
     """)
-    assert excinfo.value.args[0] == \
-            "expected section in line 1, got name 'name'"
-
+    assert excinfo.value.msg == "expected section, got name 'name'"
 
 def test_iniconig_section_duplicate_fails():
-    excinfo = py.test.raises(ValueError, r"""
+    excinfo = py.test.raises(ParseError, r"""
         IniConfig(data='[section]\n[section]')
     """)
-    assert 'duplicate section' in excinfo.value.args[0]
+    assert 'duplicate section' in str(excinfo.value)
 
 def test_iniconfig_duplicate_key_fails():
-    excinfo = py.test.raises(ValueError, r"""
+    excinfo = py.test.raises(ParseError, r"""
         IniConfig(data='[section]\nname = Alice\nname = bob')
     """)
 
-    assert 'duplicate value' in excinfo.value.args[0]
+    assert 'duplicate name' in str(excinfo.value)
 
 def test_iniconfig_lineof():
     config = IniConfig(data=
