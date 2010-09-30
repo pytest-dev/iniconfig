@@ -64,7 +64,7 @@ class SectionWrapper(object):
         self.config = config
         self.name = name
 
-    def get(self, key, convert=str, default=None):
+    def get(self, key, default=None, convert=str):
         return self.config.get(self.name, key, convert=convert, default=default)
     def __getitem__(self, key):
         return self.config.sections[self.name][key]
@@ -119,7 +119,7 @@ class IniConfig(object):
     def lineof(self, section, name=None):
         return self._sources.get((section, name))
 
-    def get(self, section, name, convert=str, default=None):
+    def get(self, section, name, default=None, convert=str):
         try:
             return convert(self.sections[section][name])
         except KeyError:
