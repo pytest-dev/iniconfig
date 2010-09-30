@@ -111,3 +111,5 @@ class IniConfig(object):
             raise KeyError(name)
         return SectionWrapper(self, name)
 
+    def get_section(self, name):
+        return SectionWrapper(self, name)
