@@ -63,11 +63,20 @@ def pytest_generate_tests(metafunc):
     elif hasattr(metafunc.function, 'multi'):
         kwargs = metafunc.function.multi.kwargs
         names, values = zip(*kwargs.items())
-        from itertools import product
-        values = product(*values)
+        values = cartesian_product(*values)
         for p in values:
             metafunc.addcall(funcargs=dict(zip(names, p)))
 
+def cartesian_product(L,*lists):
+    # copied from http://bit.ly/cyIXjn
+    if not lists:
+        for x in L:
+            yield (x,)
+    else:
+        for x in L:
+            for y in cartesian_product(lists[0],*lists[1:]):
+                yield (x,)+y
+    
 
 def test_tokenize(input, expected):
     parsed = parse(input)
@@ -75,26 +84,19 @@ def test_tokenize(input, expected):
 
 
 def test_continuation_needs_perceeding_token():
-    with py.test.raises(ValueError) as excinfo:
-        parse(' Foo')
+    excinfo = py.test.raises(ValueError, "parse(' Foo')")
     assert 'line 1' in excinfo.value.args[0]
 
 def test_continuation_cant_be_after_section():
-    with py.test.raises(ValueError) as excinfo:
-        parse('[section]\n Foo')
+    excinfo = py.test.raises(ValueError, "parse('[section]\\n Foo')")
     assert 'line 2' in excinfo.value.args[0]
 
 def test_section_cant_be_empty():
-    with py.test.raises(ValueError) as excinfo:
-        parse('[]')
-
+    excinfo = py.test.raises(ValueError, "parse('[]')")
 
 @py.test.mark.multi(line=weird_lines)
 def test_error_on_weird_lines(line):
-    with py.test.raises(ValueError) as excinfo:
-        parse('!!')
-
-
+    excinfo = py.test.raises(ValueError, "parse('!!')")
 
 def test_iniconfig_from_file(tmpdir):
     path = tmpdir/'test.txt'
@@ -105,18 +107,23 @@ def test_iniconfig_from_file(tmpdir):
     config3 = IniConfig(data=path.read())
 
 def test_iniconfig_section_first(tmpdir):
-    with py.test.raises(ValueError) as excinfo:
+    excinfo = py.test.raises(ValueError, """
         IniConfig(data='name=1')
-    assert excinfo.value.args[0] == "expected section in line 1, got name 'name'"
+    """)
+    assert excinfo.value.args[0] == \
+            "expected section in line 1, got name 'name'"
+
 
 def test_iniconig_section_duplicate_fails():
-    with py.test.raises(ValueError) as excinfo:
+    excinfo = py.test.raises(ValueError, r"""
         IniConfig(data='[section]\n[section]')
+    """)
     assert 'duplicate section' in excinfo.value.args[0]
 
 def test_iniconfig_duplicate_key_fails():
-    with py.test.raises(ValueError) as excinfo:
+    excinfo = py.test.raises(ValueError, r"""
         IniConfig(data='[section]\nname = Alice\nname = bob')
+    """)
 
     assert 'duplicate value' in excinfo.value.args[0]
 
