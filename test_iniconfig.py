@@ -45,14 +45,6 @@ check_tokens = {
 }
 
 
-weird_lines = [
-    '!!',
-    '[uhm',
-    'comeon]',
-    '[uhm =',
-    'comeon] =',
-]
-
 def pytest_generate_tests(metafunc):
     if 'input' in metafunc.funcargnames:
         for name, (input, expected) in check_tokens.items():
@@ -94,9 +86,14 @@ def test_continuation_cant_be_after_section():
 def test_section_cant_be_empty():
     excinfo = py.test.raises(ValueError, "parse('[]')")
 
-@py.test.mark.multi(line=weird_lines)
+@py.test.mark.multi(line=[
+    '!!',
+    '[uhm',
+    'comeon]',
+    '[uhm =',
+    ])
 def test_error_on_weird_lines(line):
-    excinfo = py.test.raises(ValueError, "parse('!!')")
+    excinfo = py.test.raises(ValueError, parse, line)
 
 def test_iniconfig_from_file(tmpdir):
     path = tmpdir/'test.txt'
