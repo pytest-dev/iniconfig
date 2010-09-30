@@ -113,3 +113,9 @@ def test_iniconig_section_duplicate_fails():
     with py.test.raises(ValueError) as excinfo:
         IniConfig(data='[section]\n[section]')
     assert 'duplicate section' in excinfo.value.args[0]
+
+def test_iniconfig_duplicate_key_fails():
+    with py.test.raises(ValueError) as excinfo:
+        IniConfig(data='[section]\nname = Alice\nname = bob')
+
+    assert 'duplicate value' in excinfo.value.args[0]
