@@ -180,3 +180,19 @@ def test_config_iter():
     assert list(config) == ['section']
     for name, section in config.items():
         assert section.name == name
+
+
+def test_iter_file_order():
+    config = IniConfig(data="""
+[section2] #cpython dict ordered before section
+value = 1
+value2 = 2 # dict ordered before value
+[section]
+a = 1
+b = 2
+""")
+    assert list(config) == ['section2', 'section']
+    assert list(config['section2']) == ['value', 'value2']
+    assert list(config['section']) == ['a', 'b']
+
+
