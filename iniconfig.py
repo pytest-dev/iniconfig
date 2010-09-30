@@ -8,7 +8,7 @@ class ParseError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "%s: %s" %(self.lineno, self.msg)
+        return "%s: %s" %(self.lineno+1, self.msg)
 
 def parseline(line, lineno):
 

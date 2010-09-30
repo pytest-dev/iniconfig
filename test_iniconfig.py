@@ -74,7 +74,7 @@ def test_tokenize(input, expected):
 
 def test_ParseError():
     e = ParseError(0, "hello")
-    assert str(e) == "0: hello"
+    assert str(e) == "1: hello"
 
 def test_continuation_needs_perceeding_token():
     excinfo = py.test.raises(ParseError, "parse(' Foo')")
