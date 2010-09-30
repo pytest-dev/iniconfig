@@ -1,6 +1,29 @@
 import py
 from iniconfig import _parse as parse, IniConfig
 
+def pytest_generate_tests(metafunc):
+    if 'input' in metafunc.funcargnames:
+        for name, (input, expected) in check_tokens.items():
+            metafunc.addcall(id=name, funcargs={
+                'input': input,
+                'expected': expected,
+            })
+    elif hasattr(metafunc.function, 'multi'):
+        kwargs = metafunc.function.multi.kwargs
+        names, values = zip(*kwargs.items())
+        values = cartesian_product(*values)
+        for p in values:
+            metafunc.addcall(funcargs=dict(zip(names, p)))
+
+def cartesian_product(L,*lists):
+    # copied from http://bit.ly/cyIXjn
+    if not lists:
+        for x in L:
+            yield (x,)
+    else:
+        for x in L:
+            for y in cartesian_product(lists[0],*lists[1:]):
+                yield (x,)+y
 
 check_tokens = {
     'section': (
@@ -43,31 +66,6 @@ check_tokens = {
     ),
 
 }
-
-
-def pytest_generate_tests(metafunc):
-    if 'input' in metafunc.funcargnames:
-        for name, (input, expected) in check_tokens.items():
-            metafunc.addcall(id=name, funcargs={
-                'input': input,
-                'expected': expected,
-            })
-    elif hasattr(metafunc.function, 'multi'):
-        kwargs = metafunc.function.multi.kwargs
-        names, values = zip(*kwargs.items())
-        values = cartesian_product(*values)
-        for p in values:
-            metafunc.addcall(funcargs=dict(zip(names, p)))
-
-def cartesian_product(L,*lists):
-    # copied from http://bit.ly/cyIXjn
-    if not lists:
-        for x in L:
-            yield (x,)
-    else:
-        for x in L:
-            for y in cartesian_product(lists[0],*lists[1:]):
-                yield (x,)+y
     
 
 def test_tokenize(input, expected):
