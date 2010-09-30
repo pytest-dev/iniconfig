@@ -13,6 +13,8 @@ def parseline(line, lineno):
     # section
     if line[0] == '[' and line[-1] == ']':
         return line[1:-1], None
+    elif line[0] == '[' or line[-1] == ']':
+        raise ValueError('section syntax error in line %s' % lineno)
     # value
     elif not line[0].isspace() and '=' in line:
         name, value = line.split('=', 2)
