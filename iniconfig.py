@@ -2,7 +2,7 @@
 __version__ = "1.0"
 
 def parseline(line, lineno):
-    
+
     # comments
     #XXX: should we support escaping #
     line = line.split('#')[0].rstrip()
@@ -58,6 +58,7 @@ def _parse(data):
             result.append(last[:-1] + (data,))
     return result
 
+
 class SectionWrapper(object):
     def __init__(self, config, name):
         self.config = config
@@ -65,6 +66,22 @@ class SectionWrapper(object):
 
     def get(self, key, convert=str, default=None):
         return self.config.get(self.name, key, convert=convert, default=default)
+    def __getitem__(self, key):
+        return self.config.sections[self.name][key]
+
+
+    def __iter__(self):
+        section = self.config.sections.get(self.name, [])
+        def lineof(key):
+            return self.config.lineof(self.name, key)
+        for name in sorted(section, key=lineof):
+            yield name
+
+    def items(self):
+        for name in self:
+            yield name, self[name]
+
+
 
 class IniConfig(object):
     def __init__(self, path=None, fp=None, data=None):
@@ -115,3 +132,11 @@ class IniConfig(object):
 
     def get_section(self, name):
         return SectionWrapper(self, name)
+
+    def __iter__(self):
+        for name in sorted(self.sections, key=self.lineof):
+            yield name
+
+    def items(self):
+        for name in self:
+            yield name, SectionWrapper(self, name)
