@@ -2,66 +2,14 @@
 __version__ = "0.1.dev0"
 
 class ParseError(Exception):
-    def __init__(self, lineno, msg):
-        Exception.__init__(self, lineno, msg)
+    def __init__(self, path, lineno, msg):
+        Exception.__init__(self, path, lineno, msg)
+        self.path = path
         self.lineno = lineno
         self.msg = msg
 
     def __str__(self):
-        return "%s: %s" %(self.lineno+1, self.msg)
-
-def parseline(line, lineno):
-
-    # comments
-    #XXX: should we support escaping #
-    line = line.split('#')[0].rstrip()
-
-    # blank lines
-    if not line:
-        return None, None
-    # section
-    if line[0] == '[' and line[-1] == ']':
-        return line[1:-1], None
-    elif line[0] == '[' or line[-1] == ']':
-        raise ParseError(lineno, 'section syntax error')
-    # value
-    elif not line[0].isspace() and '=' in line:
-        name, value = line.split('=', 2)
-        return name.strip(), value.strip()
-    # continuation
-    elif line[0].isspace():
-        return None, line.strip()
-    raise ParseError(lineno, 'unexpected line: %s')
-
-
-def _parse(data):
-    result = []
-    section = None
-    for lineno, line in enumerate(data.splitlines(True)):
-        name, data = parseline(line, lineno)
-        # new value
-        if name is not None and data is not None:
-            result.append((lineno, section, name, data))
-        # new section
-        elif name is not None and data is None:
-            if not name:
-                raise ParseError(lineno, 'empty section name')
-            section = name
-            result.append((lineno, section, None, None))
-        # continuation
-        elif name is None and data is not None:
-            if not result:
-                raise ParseError(lineno, 'unexpected value continuation')
-            last = result.pop()
-            last_name, last_data = last[-2:]
-            if last_name is None:
-                raise ParseError(lineno, 'unexpected value continuation')
-
-            if last_data:
-                data = '%s\n%s' % (last_data, data)
-            result.append(last[:-1] + (data,))
-    return result
-
+        return "%s:%s: %s" %(self.path, self.lineno+1, self.msg)
 
 class SectionWrapper(object):
     def __init__(self, config, name):
@@ -88,16 +36,19 @@ class SectionWrapper(object):
 
 class IniConfig(object):
     def __init__(self, path, data=None):
-        path = str(path) # convenience
+        self.path = str(path) # convenience
         if data is None:
-            f = open(path)
+            f = open(self.path)
             data = f.read()
             f.close()
-        tokens = _parse(data)
+        tokens = self._parse(data)
         if tokens[0][1] is None:
-            raise ParseError(tokens[0][0],
+            self._raise(tokens[0][0],
                 'expected section, got name %r'%(tokens[0][2],))
         self._initialize(tokens)
+
+    def _raise(self, lineno, msg):
+        raise ParseError(self.path, lineno, msg)
 
     def _initialize(self, tokens):
         self._sources = {}
@@ -107,12 +58,62 @@ class IniConfig(object):
             self._sources[section, name] = lineno
             if name is None:
                 if section in self.sections:
-                    raise ParseError(lineno, 'duplicate section %r'%(section, ))
+                    self._raise(lineno, 'duplicate section %r'%(section, ))
                 self.sections[section] = {}
             else:
                 if name in self.sections[section]:
-                    raise ParseError(lineno, 'duplicate name %r'%(name, ))
+                    self._raise(lineno, 'duplicate name %r'%(name, ))
                 self.sections[section][name] = value
+
+    def _parse(self, data):
+        result = []
+        section = None
+        for lineno, line in enumerate(data.splitlines(True)):
+            name, data = self._parseline(line, lineno)
+            # new value
+            if name is not None and data is not None:
+                result.append((lineno, section, name, data))
+            # new section
+            elif name is not None and data is None:
+                if not name:
+                    self._raise(lineno, 'empty section name')
+                section = name
+                result.append((lineno, section, None, None))
+            # continuation
+            elif name is None and data is not None:
+                if not result:
+                    self._raise(lineno, 'unexpected value continuation')
+                last = result.pop()
+                last_name, last_data = last[-2:]
+                if last_name is None:
+                    self._raise(lineno, 'unexpected value continuation')
+
+                if last_data:
+                    data = '%s\n%s' % (last_data, data)
+                result.append(last[:-1] + (data,))
+        return result
+
+    def _parseline(self, line, lineno):
+        # comments
+        #XXX: should we support escaping #
+        line = line.split('#')[0].rstrip()
+
+        # blank lines
+        if not line:
+            return None, None
+        # section
+        if line[0] == '[' and line[-1] == ']':
+            return line[1:-1], None
+        elif line[0] == '[' or line[-1] == ']':
+            self._raise(lineno, 'section syntax error')
+        # value
+        elif not line[0].isspace() and '=' in line:
+            name, value = line.split('=', 2)
+            return name.strip(), value.strip()
+        # continuation
+        elif line[0].isspace():
+            return None, line.strip()
+        self._raise(lineno, 'unexpected line: %s')
 
     def lineof(self, section, name=None):
         lineno = self._sources.get((section, name))

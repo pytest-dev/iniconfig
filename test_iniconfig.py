@@ -1,5 +1,5 @@
 import py
-from iniconfig import _parse as parse, IniConfig, ParseError
+from iniconfig import IniConfig, ParseError
 
 def pytest_generate_tests(metafunc):
     if 'input' in metafunc.funcargnames:
@@ -66,15 +66,20 @@ check_tokens = {
     ),
 
 }
-    
+   
+def parse(input):
+    # only for testing purposes - _parse() does not use state except path
+    ini = object.__new__(IniConfig)
+    ini.path = "sample"
+    return ini._parse(input)
 
 def test_tokenize(input, expected):
     parsed = parse(input)
     assert parsed == expected
 
 def test_ParseError():
-    e = ParseError(0, "hello")
-    assert str(e) == "1: hello"
+    e = ParseError("filename", 0, "hello")
+    assert str(e) == "filename:1: hello"
 
 def test_continuation_needs_perceeding_token():
     excinfo = py.test.raises(ParseError, "parse(' Foo')")
