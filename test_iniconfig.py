@@ -108,3 +108,8 @@ def test_iniconfig_section_first(tmpdir):
     with py.test.raises(ValueError) as excinfo:
         IniConfig(data='name=1')
     assert excinfo.value.args[0] == "expected section in line 1, got name 'name'"
+
+def test_iniconig_section_duplicate_fails():
+    with py.test.raises(ValueError) as excinfo:
+        IniConfig(data='[section]\n[section]')
+    assert 'duplicate section' in excinfo.value.args[0]

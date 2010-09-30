@@ -71,4 +71,14 @@ class IniConfig(object):
         self._initialize(tokens)
 
     def _initialize(self, tokens):
-        pass
+        self._sources = {}
+        self.sections = {}
+
+        for line, section, name, value in tokens:
+            self._sources[section, name] = line
+            if name is None:
+                if section in self.sections:
+                    raise ValueError('duplicate section in line %s'%line)
+                self.sections[section] = []
+
+
