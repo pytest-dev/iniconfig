@@ -78,7 +78,15 @@ class IniConfig(object):
             self._sources[section, name] = line
             if name is None:
                 if section in self.sections:
-                    raise ValueError('duplicate section in line %s'%line)
-                self.sections[section] = []
+                    raise ValueError(
+                        'duplicate section %r in line %s'%(section, line)
+                    )
+                self.sections[section] = {}
+            else:
+                if name in self.sections[section]:
+                    raise ValueError(
+                        'duplicate value %r in line %s'%(name, line)
+                    )
+                self.sections[section][name] = value
 
 
