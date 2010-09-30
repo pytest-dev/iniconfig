@@ -73,6 +73,9 @@ def parse(input):
     ini.path = "sample"
     return ini._parse(input)
 
+def parse_a_error(input):
+    return py.test.raises(ParseError, parse, input)
+
 def test_tokenize(input, expected):
     parsed = parse(input)
     assert parsed == expected
@@ -82,15 +85,15 @@ def test_ParseError():
     assert str(e) == "filename:1: hello"
 
 def test_continuation_needs_perceeding_token():
-    excinfo = py.test.raises(ParseError, "parse(' Foo')")
+    excinfo = parse_a_error(' Foo')
     assert excinfo.value.lineno == 0
 
 def test_continuation_cant_be_after_section():
-    excinfo = py.test.raises(ParseError, "parse('[section]\\n Foo')")
+    excinfo = parse_a_error('[section]\n Foo')
     assert excinfo.value.lineno == 1
 
 def test_section_cant_be_empty():
-    excinfo = py.test.raises(ParseError, "parse('[]')")
+    excinfo = parse_a_error('[]')
 
 @py.test.mark.multi(line=[
     '!!',
@@ -99,7 +102,7 @@ def test_section_cant_be_empty():
     '[uhm =',
     ])
 def test_error_on_weird_lines(line):
-    excinfo = py.test.raises(ParseError, parse, line)
+    parse_a_error(line)
 
 def test_iniconfig_from_file(tmpdir):
     path = tmpdir/'test.txt'
