@@ -42,9 +42,16 @@ check_tokens = {
         [(1, 'section', None, None)]
     ),
 
-
-
 }
+
+
+weird_lines = [
+    '!!',
+    '[uhm',
+    'comeon]',
+    '[uhm =',
+    'comeon] =',
+]
 
 def pytest_generate_tests(metafunc):
     if 'input' in metafunc.funcargnames:
@@ -53,6 +60,21 @@ def pytest_generate_tests(metafunc):
                 'input': input,
                 'expected': expected,
             })
+    elif hasattr(metafunc.function, 'multi'):
+        kwargs = metafunc.function.multi.kwargs
+        names, values = zip(*kwargs.items())
+        
+        def toseq(item):
+            if not isinstance(item, (list, tuple)):
+                return item,
+            else:
+                return item
+        from itertools import product
+
+        values = product(*map(toseq, values))
+        for p in values:
+            metafunc.addcall(funcargs=dict(zip(names, p)))
+
 
 
 
@@ -75,6 +97,8 @@ def test_section_cant_be_empty():
     with py.test.raises(ValueError) as excinfo:
         parse('[]')
 
-def test_error_on_weird_lines():
+
+@py.test.mark.multi(line=weird_lines)
+def test_error_on_weird_lines(line):
     with py.test.raises(ValueError) as excinfo:
         parse('!!')
