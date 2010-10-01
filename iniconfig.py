@@ -1,4 +1,6 @@
-
+""" brain-dead simple parser for ini-style files.
+(C) Ronny Pfannschmidt, Holger Krekel -- MIT licensed
+"""
 __version__ = "0.1.dev0"
 
 class ParseError(Exception):
@@ -18,9 +20,9 @@ class SectionWrapper(object):
 
     def get(self, key, default=None, convert=str):
         return self.config.get(self.name, key, convert=convert, default=default)
+
     def __getitem__(self, key):
         return self.config.sections[self.name][key]
-
 
     def __iter__(self):
         section = self.config.sections.get(self.name, [])
@@ -42,19 +44,13 @@ class IniConfig(object):
             data = f.read()
             f.close()
         tokens = self._parse(data)
-        if tokens[0][1] is None:
-            self._raise(tokens[0][0],
-                'expected section, got name %r'%(tokens[0][2],))
-        self._initialize(tokens)
-
-    def _raise(self, lineno, msg):
-        raise ParseError(self.path, lineno, msg)
-
-    def _initialize(self, tokens):
+        
         self._sources = {}
         self.sections = {}
 
         for lineno, section, name, value in tokens:
+            if section is None:
+                self._raise(lineno, 'no section header defined')
             self._sources[section, name] = lineno
             if name is None:
                 if section in self.sections:
@@ -64,6 +60,9 @@ class IniConfig(object):
                 if name in self.sections[section]:
                     self._raise(lineno, 'duplicate name %r'%(name, ))
                 self.sections[section][name] = value
+
+    def _raise(self, lineno, msg):
+        raise ParseError(self.path, lineno, msg)
 
     def _parse(self, data):
         result = []

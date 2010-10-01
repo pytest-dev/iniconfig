@@ -80,6 +80,12 @@ def test_tokenize(input, expected):
     parsed = parse(input)
     assert parsed == expected
 
+def test_parse_empty():
+    parsed = parse("")
+    assert not parsed
+    ini = IniConfig("sample", "")
+    assert not ini.sections
+
 def test_ParseError():
     e = ParseError("filename", 0, "hello")
     assert str(e) == "filename:1: hello"
@@ -118,7 +124,7 @@ def test_iniconfig_section_first(tmpdir):
     excinfo = py.test.raises(ParseError, """
         IniConfig("x", data='name=1')
     """)
-    assert excinfo.value.msg == "expected section, got name 'name'"
+    assert excinfo.value.msg == "no section header defined"
 
 def test_iniconig_section_duplicate_fails():
     excinfo = py.test.raises(ParseError, r"""
