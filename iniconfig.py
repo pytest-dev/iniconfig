@@ -94,9 +94,7 @@ class IniConfig(object):
 
     def _parseline(self, line, lineno):
         # comments
-        #XXX: should we support escaping #
         line = line.split('#')[0].rstrip()
-
         # blank lines
         if not line:
             return None, None
@@ -130,13 +128,6 @@ class IniConfig(object):
             raise KeyError(name)
         return SectionWrapper(self, name)
 
-    def get_section(self, name):
-        return SectionWrapper(self, name)
-
     def __iter__(self):
         for name in sorted(self.sections, key=self.lineof):
-            yield name
-
-    def items(self):
-        for name in self:
-            yield name, SectionWrapper(self, name)
+            yield SectionWrapper(self, name)
