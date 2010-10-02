@@ -1,5 +1,6 @@
 import py
 from iniconfig import IniConfig, ParseError
+from textwrap import dedent
 
 def pytest_generate_tests(metafunc):
     if 'input' in metafunc.funcargnames:
@@ -171,17 +172,13 @@ def test_section_get():
     assert section.get('value', 1) == "1"
     assert section.get('missing', 2) == 2
 
-def test_get_missing_section():
+def test_missing_section():
     config = IniConfig("x", data='[section]\nvalue=1')
     py.test.raises(KeyError,'config["other"]')
-    config.get_section('missing') #
 
 def test_section_getitem():
     config = IniConfig("x", data='[section]\nvalue=1')
-
-    missing=config.get_section('test')
-    py.test.raises(KeyError, 'missing["something"]')
-
+    assert config['section']['value'] == '1'
     assert config['section']['value'] == '1'
 
 def test_section_iter():
@@ -192,11 +189,18 @@ def test_section_iter():
     assert items==[('value', '1')]
 
 def test_config_iter():
-    config = IniConfig("x.ini", data='[section]\nvalue=1')
-    assert list(config) == ['section']
-    for name, section in config.items():
-        assert section.name == name
-
+    config = IniConfig("x.ini", data=dedent('''
+          [section1]
+          value=1
+          [section2]
+          value=2
+    '''))
+    l = list(config)
+    assert len(l) == 2
+    assert l[0].name == 'section1'
+    assert l[0]['value'] == '1'
+    assert l[1].name == 'section2'
+    assert l[1]['value'] == '2'
 
 def test_iter_file_order():
     config = IniConfig("x.ini", data="""
@@ -207,8 +211,8 @@ value2 = 2 # dict ordered before value
 a = 1
 b = 2
 """)
-    assert list(config) == ['section2', 'section']
+    l = list(config)
+    secnames = [x.name for x in l]
+    assert secnames == ['section2', 'section']
     assert list(config['section2']) == ['value', 'value2']
     assert list(config['section']) == ['a', 'b']
-
-
