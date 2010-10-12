@@ -65,6 +65,10 @@ check_tokens = {
         '[section] #comment',
         [(0, 'section', None, None)]
     ),
+    'pseudo section syntax in value': (
+        'name = value []',
+        [(0, None, 'name', 'value []')]
+    ),
 
 }
    
@@ -104,9 +108,6 @@ def test_section_cant_be_empty():
 
 @py.test.mark.multi(line=[
     '!!',
-    '[uhm',
-    'comeon]',
-    '[uhm =',
     ])
 def test_error_on_weird_lines(line):
     parse_a_error(line)

@@ -101,8 +101,6 @@ class IniConfig(object):
         # section
         if line[0] == '[' and line[-1] == ']':
             return line[1:-1], None
-        elif line[0] == '[' or line[-1] == ']':
-            self._raise(lineno, 'section syntax error')
         # value
         elif not line[0].isspace() and '=' in line:
             name, value = line.split('=', 2)
