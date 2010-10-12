@@ -129,3 +129,6 @@ class IniConfig(object):
     def __iter__(self):
         for name in sorted(self.sections, key=self.lineof):
             yield SectionWrapper(self, name)
+
+    def __contains__(self, arg):
+        return arg in self.sections

@@ -45,4 +45,7 @@ then you can do::
     ['section1', 'section2']
     >>> list(list(ini)[0].items())
     [('name1', 'value1'), ('name1b', 'value1,value2')]
-
+    >>> 'section1' in ini
+    True
+    >>> 'inexistendsection' in ini
+    False
