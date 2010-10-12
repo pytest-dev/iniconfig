@@ -6,7 +6,6 @@ having a unique set of features:
 
 * tested against Python2.4 across to Python3.2, Jython, PyPy
 * maintains order of sections and entries
-* (XXX offers a dict-interface for accessing sections and name-value pairs)
 * supports multi-line values with or without line-continuations
 * supports "#" comments everywhere
 * raises errors with proper line-numbers
