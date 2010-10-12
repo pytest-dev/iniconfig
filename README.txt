@@ -10,6 +10,7 @@ having a unique set of features:
 * supports "#" comments everywhere
 * raises errors with proper line-numbers
 * no bells and whistles like automatic substitutions
+* iniconfig raises an Error if two sections have the same name.
 
 If you encounter issues or have feature wishes please report them to:
 
@@ -18,19 +19,30 @@ If you encounter issues or have feature wishes please report them to:
 Basic Example
 ===================================
 
->>> import iniconfig
->>> ...
+If you have an ini file like this::
 
+    # content of example.ini
+    [section1] # comment
+    name1=value1  # comment
+    name1b=value1,value2  # comment
 
-Differences to configparser/ConfigParser
-===============================================
+    [section2]
+    name2=
+        line1
+        line2
 
-- iniconfig does not allow two sections with the same name.
-  it rathers throws an error instead of automatically merging.
-
-- maintains order of sections
-
-have fun,
-
-Ronny and Holger
+then you can do::
+ 
+    >>> import iniconfig
+    >>> ini = iniconfig.IniConfig("example.ini")
+    >>> ini['section1']['name1'] # raises KeyError if not exists
+    'value1'
+    >>> ini.get('section1', 'name1b', [], lambda x: x.split(","))
+    ['value1', 'value2']
+    >>> ini.get('section1', 'notexist', [], lambda x: x.split(","))
+    []
+    >>> [x.name for x in list(ini)]
+    ['section1', 'section2']
+    >>> list(list(ini)[0].items())
+    [('name1', 'value1'), ('name1b', 'value1,value2')]
 
