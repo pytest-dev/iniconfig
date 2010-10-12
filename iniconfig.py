@@ -1,7 +1,7 @@
 """ brain-dead simple parser for ini-style files.
 (C) Ronny Pfannschmidt, Holger Krekel -- MIT licensed
 """
-__version__ = "0.1"
+__version__ = "0.2.dev0"
 
 class ParseError(Exception):
     def __init__(self, path, lineno, msg):
