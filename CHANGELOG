@@ -1,0 +1,6 @@
+
+0.2
+==================
+
+- added ability to ask "name in iniconfig", i.e. to check
+  if a section is contained.

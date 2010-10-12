@@ -203,6 +203,17 @@ def test_config_iter():
     assert l[1].name == 'section2'
     assert l[1]['value'] == '2'
 
+def test_config_contains():
+    config = IniConfig("x.ini", data=dedent('''
+          [section1]
+          value=1
+          [section2]
+          value=2
+    '''))
+    assert 'xyz' not in config
+    assert 'section1' in config
+    assert 'section2' in config
+
 def test_iter_file_order():
     config = IniConfig("x.ini", data="""
 [section2] #cpython dict ordered before section
