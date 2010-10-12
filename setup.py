@@ -26,8 +26,8 @@ def main():
         url='http://bitbucket.org/RonnyPfannschmidt/inipkg',
         license='MIT License',
         platforms=['unix', 'linux', 'osx', 'cygwin', 'win32'],
-        author='Ronny Pfannschmidt',
-        author_email='Ronny.Pfannschmidt@gmx.de',
+        author='Ronny Pfannschmidt, Holger Krekel',
+        author_email='Ronny.Pfannschmidt@gmx.de, holger.krekel@gmail.com',
         classifiers=[
             'Development Status :: 4 - Beta',
             'Intended Audience :: Developers',
