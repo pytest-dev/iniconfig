@@ -23,7 +23,7 @@ def main():
         'iniconfig: brain-dead simple config-ini parsing',
         long_description = open('README.txt').read(),
         version= __version__,
-        url='http://bitbucket.org/RonnyPfannschmidt/inipkg',
+        url='http://bitbucket.org/RonnyPfannschmidt/iniconfig',
         license='MIT License',
         platforms=['unix', 'linux', 'osx', 'cygwin', 'win32'],
         author='Ronny Pfannschmidt, Holger Krekel',
