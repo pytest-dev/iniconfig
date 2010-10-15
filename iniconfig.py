@@ -3,6 +3,8 @@
 """
 __version__ = "0.2.dev0"
 
+__all__ = ['IniConfig', 'ParseError']
+
 class ParseError(Exception):
     def __init__(self, path, lineno, msg):
         Exception.__init__(self, path, lineno, msg)
