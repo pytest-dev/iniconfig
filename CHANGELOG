@@ -4,3 +4,5 @@
 
 - added ability to ask "name in iniconfig", i.e. to check
   if a section is contained.
+
+- fix bug in "name=value" parsing where value was "x=3"

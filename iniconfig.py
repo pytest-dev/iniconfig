@@ -103,7 +103,7 @@ class IniConfig(object):
             return line[1:-1], None
         # value
         elif not line[0].isspace() and '=' in line:
-            name, value = line.split('=', 2)
+            name, value = line.split('=', 1)
             return name.strip(), value.strip()
         # continuation
         elif line[0].isspace():

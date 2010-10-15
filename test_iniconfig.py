@@ -69,6 +69,10 @@ check_tokens = {
         'name = value []',
         [(0, None, 'name', 'value []')]
     ),
+    'assignment in value': (
+        'value = x = 3',
+        [(0, None, 'value', 'x = 3')]
+    ),
 
 }
    
