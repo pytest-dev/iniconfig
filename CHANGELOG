@@ -6,3 +6,7 @@
   if a section is contained.
 
 - fix bug in "name=value" parsing where value was "x=3"
+
+- allow for ': ' to delimit name=value pairs, so that e.g. .pypirc files
+  like http://docs.python.org/distutils/packageindex.html
+  can be successfully parsed
