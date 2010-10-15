@@ -1,5 +1,5 @@
 import py
-from iniconfig import IniConfig, ParseError
+from iniconfig import IniConfig, ParseError, __all__ as ALL
 from textwrap import dedent
 
 def pytest_generate_tests(metafunc):
@@ -266,3 +266,5 @@ def test_example_pypirc():
     assert ['repository', 'username', 'password'] == list(other)
 
 
+def test_api_import():
+    assert ALL == ['IniConfig', 'ParseError']
