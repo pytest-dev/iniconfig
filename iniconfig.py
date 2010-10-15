@@ -102,13 +102,19 @@ class IniConfig(object):
         if line[0] == '[' and line[-1] == ']':
             return line[1:-1], None
         # value
-        elif not line[0].isspace() and '=' in line:
-            name, value = line.split('=', 1)
+        elif not line[0].isspace():
+            i = line.find(": ")
+            if i != -1:
+                name, value = line.split(": ", 1)
+            else:
+                try:
+                    name, value = line.split('=', 1)
+                except ValueError:
+                    self._raise(lineno, 'unexpected line: %s')
             return name.strip(), value.strip()
         # continuation
-        elif line[0].isspace():
+        else:
             return None, line.strip()
-        self._raise(lineno, 'unexpected line: %s')
 
     def lineof(self, section, name=None):
         lineno = self._sources.get((section, name))

@@ -73,6 +73,14 @@ check_tokens = {
         'value = x = 3',
         [(0, None, 'value', 'x = 3')]
     ),
+    'use of colon for name-values': (
+        'name: y=5',
+        [(0, None, 'name', 'y=5')]
+    ),
+    'use of colon without space': (
+        'value:xyz=5',
+        [(0, None, 'value:xyz', '5')]
+    ),
 
 }
    
@@ -232,3 +240,29 @@ b = 2
     assert secnames == ['section2', 'section']
     assert list(config['section2']) == ['value', 'value2']
     assert list(config['section']) == ['a', 'b']
+
+def test_example_pypirc():
+    config = IniConfig("pypirc", data=dedent('''
+        [distutils]
+        index-servers =
+            pypi
+            other
+
+        [pypi]
+        repository: <repository-url>
+        username: <username>
+        password: <password>
+
+        [other]
+        repository: http://example.com/pypi
+        username: <username>
+        password: <password>
+    '''))
+    distutils, pypi, other = list(config)
+    assert distutils["index-servers"] == "pypi\nother"
+    assert pypi['repository'] == '<repository-url>'
+    assert pypi['username'] == '<username>'
+    assert pypi['password'] == '<password>'
+    assert ['repository', 'username', 'password'] == list(other)
+
+
