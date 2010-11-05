@@ -49,7 +49,7 @@ class IniConfig(object):
             try:
                 tokens = self._parse(iter(f))
             finally:
-                f.close
+                f.close()
         else:
             tokens = self._parse(data.splitlines(True))
 
