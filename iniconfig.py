@@ -7,6 +7,7 @@ __all__ = ['IniConfig', 'ParseError']
 
 COMMENTCHARS = "#;"
 
+
 class ParseError(Exception):
     def __init__(self, path, lineno, msg):
         Exception.__init__(self, path, lineno, msg)
@@ -15,7 +16,8 @@ class ParseError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "%s:%s: %s" %(self.path, self.lineno+1, self.msg)
+        return "%s:%s: %s" % (self.path, self.lineno+1, self.msg)
+
 
 class SectionWrapper(object):
     def __init__(self, config, name):
@@ -26,13 +28,15 @@ class SectionWrapper(object):
         return self.config.lineof(self.name, name)
 
     def get(self, key, default=None, convert=str):
-        return self.config.get(self.name, key, convert=convert, default=default)
+        return self.config.get(self.name, key,
+                               convert=convert, default=default)
 
     def __getitem__(self, key):
         return self.config.sections[self.name][key]
 
     def __iter__(self):
         section = self.config.sections.get(self.name, [])
+
         def lineof(key):
             return self.config.lineof(self.name, key)
         for name in sorted(section, key=lineof):
@@ -45,7 +49,7 @@ class SectionWrapper(object):
 
 class IniConfig(object):
     def __init__(self, path, data=None):
-        self.path = str(path) # convenience
+        self.path = str(path)  # convenience
         if data is None:
             f = open(self.path)
             try:
@@ -64,11 +68,11 @@ class IniConfig(object):
             self._sources[section, name] = lineno
             if name is None:
                 if section in self.sections:
-                    self._raise(lineno, 'duplicate section %r'%(section, ))
+                    self._raise(lineno, 'duplicate section %r' % (section, ))
                 self.sections[section] = {}
             else:
                 if name in self.sections[section]:
-                    self._raise(lineno, 'duplicate name %r'%(name, ))
+                    self._raise(lineno, 'duplicate name %r' % (name, ))
                 self.sections[section][name] = value
 
     def _raise(self, lineno, msg):
@@ -156,6 +160,7 @@ class IniConfig(object):
 
     def __contains__(self, arg):
         return arg in self.sections
+
 
 def iscommentline(line):
     c = line.lstrip()[:1]
