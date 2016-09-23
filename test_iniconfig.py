@@ -1,5 +1,7 @@
 import py
+import pytest
 from iniconfig import IniConfig, ParseError, __all__ as ALL
+from iniconfig import iscommentline
 from textwrap import dedent
 
 def pytest_generate_tests(metafunc):
@@ -57,12 +59,21 @@ check_tokens = {
         []
     ),
     'comment on value': (
-        'value = 1 # comment',
+        'value = 1',
         [(0, None, 'value', '1')]
     ),
 
     'comment on section': (
         '[section] #comment',
+        [(0, 'section', None, None)]
+    ),
+    'comment2': (
+        '; comment',
+        []
+    ),
+
+    'comment2 on section': (
+        '[section] ;comment',
         [(0, 'section', None, None)]
     ),
     'pseudo section syntax in value': (
@@ -74,12 +85,12 @@ check_tokens = {
         [(0, None, 'value', 'x = 3')]
     ),
     'use of colon for name-values': (
-        'name: y=5',
-        [(0, None, 'name', 'y=5')]
+        'name: y',
+        [(0, None, 'name', 'y')]
     ),
     'use of colon without space': (
-        'value:xyz=5',
-        [(0, None, 'value:xyz', '5')]
+        'value:y=5',
+        [(0, None, 'value', 'y=5')]
     ),
     'equality gets precedence': (
         'value=xyz:5',
@@ -87,7 +98,7 @@ check_tokens = {
     ),
 
 }
-   
+
 def parse(input):
     # only for testing purposes - _parse() does not use state except path
     ini = object.__new__(IniConfig)
@@ -171,7 +182,7 @@ def test_iniconfig_lineof():
     assert config.lineof('section2') == 3
     assert config.lineof('section', 'value') == 2
     assert config.lineof('section2','value') == 5
-    
+
     assert config['section'].lineof('value') == 2
     assert config['section2'].lineof('value') == 5
 
@@ -275,3 +286,12 @@ def test_example_pypirc():
 
 def test_api_import():
     assert ALL == ['IniConfig', 'ParseError']
+
+@pytest.mark.parametrize("line", [
+    "#qwe",
+    "  #qwe",
+    ";qwe",
+    " ;qwe",
+])
+def test_iscommentline_true(line):
+    assert iscommentline(line)
