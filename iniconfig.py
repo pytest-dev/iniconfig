@@ -1,8 +1,6 @@
 """ brain-dead simple parser for ini-style files.
 (C) Ronny Pfannschmidt, Holger Krekel -- MIT licensed
 """
-__version__ = "0.2.dev2"
-
 __all__ = ['IniConfig', 'ParseError']
 
 COMMENTCHARS = "#;"

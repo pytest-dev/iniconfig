@@ -5,5 +5,5 @@ python:
 - '3.5'
 - nightly
 - pypy
-install: pip install tox
+install: pip install setuptools_scm tox
 script: tox -e py
