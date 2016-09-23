@@ -14,7 +14,7 @@ having a unique set of features:
 
 If you encounter issues or have feature wishes please report them to:
 
-    http://bitbucket.org/RonnyPfannschmidt/iniconfig/issues
+    http://github.org/RonnyPfannschmidt/iniconfig/issues
 
 Basic Example
 ===================================
@@ -32,7 +32,7 @@ If you have an ini file like this::
         line2
 
 then you can do::
- 
+
     >>> import iniconfig
     >>> ini = iniconfig.IniConfig("example.ini")
     >>> ini['section1']['name1'] # raises KeyError if not exists
