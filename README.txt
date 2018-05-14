@@ -14,7 +14,7 @@ having a unique set of features:
 
 If you encounter issues or have feature wishes please report them to:
 
-    http://github.org/RonnyPfannschmidt/iniconfig/issues
+    http://github.com/RonnyPfannschmidt/iniconfig/issues
 
 Basic Example
 ===================================
