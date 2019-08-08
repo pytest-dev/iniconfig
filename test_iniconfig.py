@@ -150,27 +150,25 @@ def test_iniconfig_from_file(tmpdir):
     assert list(config.sections) == ['metadata']
     config = IniConfig(path, "[diff]")
     assert list(config.sections) == ['diff']
-    py.test.raises(TypeError, "IniConfig(data=path.read())")
+    with pytest.raises(TypeError):
+        IniConfig(data=path.read())
 
 
 def test_iniconfig_section_first(tmpdir):
-    excinfo = py.test.raises(ParseError, """
+    with pytest.raises(ParseError) as excinfo:
         IniConfig("x", data='name=1')
-    """)
     assert excinfo.value.msg == "no section header defined"
 
 
 def test_iniconig_section_duplicate_fails():
-    excinfo = py.test.raises(ParseError, r"""
+    with pytest.raises(ParseError) as excinfo:
         IniConfig("x", data='[section]\n[section]')
-    """)
     assert 'duplicate section' in str(excinfo.value)
 
 
 def test_iniconfig_duplicate_key_fails():
-    excinfo = py.test.raises(ParseError, r"""
+    with pytest.raises(ParseError) as excinfo:
         IniConfig("x", data='[section]\nname = Alice\nname = bob')
-    """)
 
     assert 'duplicate name' in str(excinfo.value)
 
