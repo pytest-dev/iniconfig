@@ -17,8 +17,6 @@ def main():
         py_modules=['iniconfig'],
         description='iniconfig: brain-dead simple config-ini parsing',
         long_description=readme,
-        use_scm_version=True,
-        setup_requires=['setuptools-scm'],
         url='http://github.com/RonnyPfannschmidt/iniconfig',
         license='MIT License',
         platforms=['unix', 'linux', 'osx', 'cygwin', 'win32'],
