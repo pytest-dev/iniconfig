@@ -14,6 +14,7 @@ def main():
         readme = fp.read()
     setup(
         name='iniconfig',
+        version='1.0.1',
         py_modules=['iniconfig'],
         description='iniconfig: brain-dead simple config-ini parsing',
         long_description=readme,
