@@ -37,6 +37,8 @@ def main():
             'Programming Language :: Python :: 2',
             'Programming Language :: Python :: 3',
         ],
+        include_package_data=True,
+        zip_safe=False,
     )
 
 if __name__ == '__main__':
