@@ -14,7 +14,8 @@ def main():
         readme = fp.read()
     setup(
         name='iniconfig',
-        py_modules=['iniconfig'],
+        packages=['iniconfig'],
+        package_dir={'': 'src'},
         description='iniconfig: brain-dead simple config-ini parsing',
         long_description=readme,
         url='http://github.com/RonnyPfannschmidt/iniconfig',
@@ -36,6 +37,8 @@ def main():
             'Programming Language :: Python :: 2',
             'Programming Language :: Python :: 3',
         ],
+        include_package_data=True,
+        zip_safe=False,
     )
 
 if __name__ == '__main__':
