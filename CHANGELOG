@@ -1,3 +1,16 @@
+1.0.1
+=========
+
+1.1.0
+=====
+
+- typing stubs (thanks @bluetech)
+- ci fixes
+
+1.0.1
+======
+
+pytest 5+ support
 
 1.0
 ====
