@@ -18,6 +18,7 @@ def main():
         package_dir={'': 'src'},
         description='iniconfig: brain-dead simple config-ini parsing',
         long_description=readme,
+        use_scm_version=True,
         url='http://github.com/RonnyPfannschmidt/iniconfig',
         license='MIT License',
         platforms=['unix', 'linux', 'osx', 'cygwin', 'win32'],
