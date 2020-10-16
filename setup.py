@@ -11,13 +11,14 @@ from setuptools import setup
 
 def main():
     setup(
-        packages=['iniconfig'],
-        package_dir={'': 'src'},
+        packages=["iniconfig"],
+        package_dir={"": "src"},
         use_scm_version=True,
-        url='http://github.com/RonnyPfannschmidt/iniconfig',
+        url="http://github.com/RonnyPfannschmidt/iniconfig",
         include_package_data=True,
         zip_safe=False,
     )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
