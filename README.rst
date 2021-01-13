@@ -4,7 +4,6 @@ iniconfig: brain-dead simple parsing of ini files
 iniconfig is a small and simple INI-file parser module
 having a unique set of features:
 
-* tested against Python2.4 across to Python3.2, Jython, PyPy
 * maintains order of sections and entries
 * supports multi-line values with or without line-continuations
 * supports "#" comments everywhere
@@ -14,7 +13,7 @@ having a unique set of features:
 
 If you encounter issues or have feature wishes please report them to:
 
-    http://github.com/RonnyPfannschmidt/iniconfig/issues
+    https://github.com/RonnyPfannschmidt/iniconfig/issues
 
 Basic Example
 ===================================
