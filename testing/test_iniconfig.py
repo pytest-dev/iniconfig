@@ -98,7 +98,12 @@ def test_section_cant_be_empty():
     assert excinfo.value.lineno == 0
 
 
-@py.test.mark.parametrize("line", ["!!",])
+@py.test.mark.parametrize(
+    "line",
+    [
+        "!!",
+    ],
+)
 def test_error_on_weird_lines(line):
     parse_a_error(line)
 
@@ -280,6 +285,14 @@ def test_api_import():
     assert ALL == ["IniConfig", "ParseError"]
 
 
-@pytest.mark.parametrize("line", ["#qwe", "  #qwe", ";qwe", " ;qwe",])
+@pytest.mark.parametrize(
+    "line",
+    [
+        "#qwe",
+        "  #qwe",
+        ";qwe",
+        " ;qwe",
+    ],
+)
 def test_iscommentline_true(line):
     assert iscommentline(line)
