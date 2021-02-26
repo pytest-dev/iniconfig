@@ -18,7 +18,9 @@ If you encounter issues or have feature wishes please report them to:
 Basic Example
 ===================================
 
-If you have an ini file like this::
+If you have an ini file like this:
+
+.. code-block:: ini
 
     # content of example.ini
     [section1] # comment
@@ -30,7 +32,9 @@ If you have an ini file like this::
         line1
         line2
 
-then you can do::
+then you can do:
+
+.. code-block:: pycon
 
     >>> import iniconfig
     >>> ini = iniconfig.IniConfig("example.ini")
