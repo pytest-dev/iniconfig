@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    if: github.repository == 'RonnyPfannschmidt/iniconfig'
+    if: github.repository == 'pytest-dev/iniconfig'
     runs-on: ubuntu-20.04
 
     steps:
