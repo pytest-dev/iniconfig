@@ -1,5 +1,12 @@
+Unreleased
+==========
+
+* add support for Python 3.6-3.9
+* drop support for Python 2.6-2.7, 3.3-3.5
+
+
 1.1.1
-=========
+=====
 
 * fix version determination (thanks @florimondmanca)
 
@@ -10,17 +17,19 @@
 - ci fixes
 
 1.0.1
-======
+=====
 
 pytest 5+ support
 
 1.0
-====
+===
 
 - re-sync with pylib codebase
+- add support for Python 3.4-3.5
+- drop support for Python 2.4-2.5, 3.2
 
 0.2
-==================
+===
 
 - added ability to ask "name in iniconfig", i.e. to check
   if a section is contained.
