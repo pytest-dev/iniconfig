@@ -14,7 +14,7 @@ class ParseError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "{}:{}: {}".format(self.path, self.lineno + 1, self.msg)
+        return f"{self.path}:{self.lineno + 1}: {self.msg}"
 
 
 class SectionWrapper:

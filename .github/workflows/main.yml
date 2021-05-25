@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.6", "3.7", "3.8", "3.9"]
+        python: ["3.6", "3.7", "3.8", "3.9", "3.10-dev"]
         os: [ubuntu-latest, windows-latest]
         include:
           - python: "3.6"
@@ -21,6 +21,8 @@ jobs:
             tox_env: "py38"
           - python: "3.9"
             tox_env: "py39"
+          - python: "3.10-dev"
+            tox_env: "py310"
 
     steps:
     - uses: actions/checkout@v2
@@ -35,7 +37,7 @@ jobs:
     - name: Test
       run: |
         tox -e ${{ matrix.tox_env }}
-  
+
   pre-commit:
     runs-on: ubuntu-latest
     steps:
