@@ -48,7 +48,7 @@ class IniConfig:
     def __init__(self, path, data=None):
         self.path = str(path)  # convenience
         if data is None:
-            f = open(self.path)
+            f = open(self.path, encoding='urf-8')
             try:
                 tokens = self._parse(iter(f))
             finally:
