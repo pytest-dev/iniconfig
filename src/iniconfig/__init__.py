@@ -1,6 +1,7 @@
 """ brain-dead simple parser for ini-style files.
 (C) Ronny Pfannschmidt, Holger Krekel -- MIT licensed
 """
+import chardet
 __all__ = ["IniConfig", "ParseError"]
 
 COMMENTCHARS = "#;"
@@ -48,7 +49,9 @@ class IniConfig:
     def __init__(self, path, data=None):
         self.path = str(path)  # convenience
         if data is None:
-            f = open(self.path, encoding='urf-8')
+            with open(self.path, 'rb') as f:
+                encoding = chardet.detect(f.read()).get('encoding')
+            f = open(self.path, encoding=encoding)
             try:
                 tokens = self._parse(iter(f))
             finally:
