@@ -296,3 +296,11 @@ def test_api_import():
 )
 def test_iscommentline_true(line):
     assert iscommentline(line)
+    
+def test_iniconfig_from_file_unicode(tmpdir):
+    path = tmpdir / "test_unicode.txt"
+    path.write("[data]\nvalue=A한다żółć,?/~äčď", encoding='utf-8')
+
+    config = IniConfig(path=path)
+    config["data"]["value"] == "A한다żółć,?/~äčď"
+
