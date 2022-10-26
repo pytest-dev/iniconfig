@@ -48,7 +48,12 @@ class IniConfig:
     def __init__(self, path, data=None):
         self.path = str(path)  # convenience
         if data is None:
-            f = open(self.path)
+            for encoding in [None, 'utf-8', 'gbk']:
+                try:
+                    f = open(self.path, encoding=encoding)
+                    break
+                except UnicodeError as e:
+                    continue
             try:
                 tokens = self._parse(iter(f))
             finally:
