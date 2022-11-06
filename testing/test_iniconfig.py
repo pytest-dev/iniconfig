@@ -63,7 +63,7 @@ def parse(input):
 
 
 def parse_a_error(input):
-    return py.test.raises(ParseError, parse, input)
+    return pytest.raises(ParseError, parse, input)
 
 
 def test_tokenize(input, expected):
@@ -98,7 +98,7 @@ def test_section_cant_be_empty():
     assert excinfo.value.lineno == 0
 
 
-@py.test.mark.parametrize(
+@pytest.mark.parametrize(
     "line",
     [
         "!!",
