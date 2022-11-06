@@ -1,15 +1,16 @@
 repos:
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.0
+    rev: v3.2.0
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
 -   repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v1.19.0
+    rev: v2.2.0
     hooks:
     -   id: setup-cfg-fmt
+        args: [--include-version-classifiers, --min-py3-version=3.6]
 - repo: https://github.com/psf/black
-  rev: 21.10b0
+  rev: 22.10.0
   hooks:
       - id: black
         language_version: python3 # Should be a command that runs python3.6+
