@@ -12,17 +12,6 @@ jobs:
       matrix:
         python: ["3.7", "3.8", "3.9", "3.10", "3.11"]
         os: [ubuntu-latest, windows-latest]
-        include:
-          - python: "3.7"
-            tox_env: "py37"
-          - python: "3.8"
-            tox_env: "py38"
-          - python: "3.9"
-            tox_env: "py39"
-          - python: "3.10"
-            tox_env: "py310"
-          - python: "3.11"
-            tox_env: "py311"
 
     steps:
     - uses: actions/checkout@v3
@@ -36,7 +25,7 @@ jobs:
         pip install tox
     - name: Test
       run: |
-        tox -e ${{ matrix.tox_env }}
+        tox -e py
 
   pre-commit:
     runs-on: ubuntu-latest
