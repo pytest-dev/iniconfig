@@ -1,4 +1,3 @@
-import py
 import pytest
 from iniconfig import IniConfig, ParseError, __all__ as ALL
 from iniconfig import iscommentline
