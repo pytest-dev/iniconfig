@@ -16,7 +16,7 @@ check_tokens = {
         [(0, None, "names", "Alice\nBob")],
     ),
     "value with aligned continuation": (
-        "names = Alice\n" "        Bob",
+        "names = Alice\n        Bob",
         [(0, None, "names", "Alice\nBob")],
     ),
     "blank line": (
@@ -141,7 +141,7 @@ def test_iniconfig_duplicate_key_fails():
 def test_iniconfig_lineof():
     config = IniConfig(
         "x.ini",
-        data=("[section]\n" "value = 1\n" "[section2]\n" "# comment\n" "value =2"),
+        data=("[section]\nvalue = 1\n[section2]\n# comment\nvalue =2"),
     )
 
     assert config.lineof("missing") is None
