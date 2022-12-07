@@ -4,7 +4,7 @@ from setuptools import setup
 import setuptools_scm  # noqa
 
 
-def local_scheme(version):
+def local_scheme(version: object) -> str:
     """Skip the local version (eg. +xyz of 0.6.1.dev4+gdf99fe2)
     to be able to upload to Test PyPI"""
     return ""
