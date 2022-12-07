@@ -1,9 +1,11 @@
-Unreleased
+1.2.0 (Unreleased)
 ==========
 
-* add support for Python 3.6-3.10
-* drop support for Python 2.6-2.7, 3.3-3.5
-
+* add support for Python 3.7-3.11
+* drop support for Python 2.6-3.6
+* add encoding argument defaulting to utf-8
+* inline and clarify type annotations
+* move parsing code from inline to extra file
 
 1.1.1
 =====
