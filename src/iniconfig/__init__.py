@@ -21,24 +21,14 @@ from typing import (
 if TYPE_CHECKING:
     from typing_extensions import Final
 
-__all__ = ["IniConfig", "ParseError"]
+__all__ = ["IniConfig", "ParseError", "COMMENTCHARS", "iscommentline"]
 
 from .exceptions import ParseError
-
-COMMENTCHARS = "#;"
+from . import _parse
+from ._parse import COMMENTCHARS, iscommentline
 
 _D = TypeVar("_D")
 _T = TypeVar("_T")
-
-
-_str_default = cast(Callable[[str], str], str)
-
-
-class _ParsedLine(NamedTuple):
-    lineno: int
-    section: str | None
-    name: str | None
-    value: str | None
 
 
 class SectionWrapper:
@@ -88,7 +78,7 @@ class IniConfig:
             with open(self.path, encoding=encoding) as fp:
                 data = fp.read()
 
-        tokens = self._parse(data.splitlines(True))
+        tokens = _parse.parse_lines(path, data.splitlines(True))
 
         self._sources = {}
         sections_data: dict[str, dict[str, str]]
@@ -96,81 +86,17 @@ class IniConfig:
 
         for lineno, section, name, value in tokens:
             if section is None:
-                self._raise(lineno, "no section header defined")
+                raise ParseError(path, lineno, "no section header defined")
             self._sources[section, name] = lineno
             if name is None:
                 if section in self.sections:
-                    self._raise(lineno, f"duplicate section {section!r}")
+                    raise ParseError(path, lineno, f"duplicate section {section!r}")
                 sections_data[section] = {}
             else:
                 if name in self.sections[section]:
-                    self._raise(lineno, f"duplicate name {name!r}")
+                    raise ParseError(path, lineno, f"duplicate name {name!r}")
                 assert value is not None
                 sections_data[section][name] = value
-
-    def _raise(self, lineno: int, msg: str) -> NoReturn:
-        raise ParseError(self.path, lineno, msg)
-
-    def _parse(self, line_iter: list[str]) -> list[_ParsedLine]:
-        result: list[_ParsedLine] = []
-        section = None
-        for lineno, line in enumerate(line_iter):
-            name, data = self._parseline(line, lineno)
-            # new value
-            if name is not None and data is not None:
-                result.append(_ParsedLine(lineno, section, name, data))
-            # new section
-            elif name is not None and data is None:
-                if not name:
-                    self._raise(lineno, "empty section name")
-                section = name
-                result.append(_ParsedLine(lineno, section, None, None))
-            # continuation
-            elif name is None and data is not None:
-                if not result:
-                    self._raise(lineno, "unexpected value continuation")
-                last = result.pop()
-                if last.name is None:
-                    self._raise(lineno, "unexpected value continuation")
-
-                if last.value:
-                    last = last._replace(value=f"{last.value}\n{data}")
-                else:
-                    last = last._replace(value=data)
-                result.append(last)
-        return result
-
-    def _parseline(self, line: str, lineno: int) -> tuple[str | None, str | None]:
-        # blank lines
-        if iscommentline(line):
-            line = ""
-        else:
-            line = line.rstrip()
-        if not line:
-            return None, None
-        # section
-        if line[0] == "[":
-            realline = line
-            for c in COMMENTCHARS:
-                line = line.split(c)[0].rstrip()
-            if line[-1] == "]":
-                return line[1:-1], None
-            return None, realline.strip()
-        # value
-        elif not line[0].isspace():
-            try:
-                name, value = line.split("=", 1)
-                if ":" in name:
-                    raise ValueError()
-            except ValueError:
-                try:
-                    name, value = line.split(":", 1)
-                except ValueError:
-                    self._raise(lineno, "unexpected line: %r" % line)
-            return name.strip(), value.strip()
-        # continuation
-        else:
-            return None, line.strip()
 
     def lineof(self, section: str, name: str | None = None) -> int | None:
         lineno = self._sources.get((section, name))
@@ -247,8 +173,3 @@ class IniConfig:
 
     def __contains__(self, arg: str) -> bool:
         return arg in self.sections
-
-
-def iscommentline(line: str) -> bool:
-    c = line.lstrip()[:1]
-    return c in COMMENTCHARS

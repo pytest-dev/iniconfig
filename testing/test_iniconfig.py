@@ -1,6 +1,7 @@
 from __future__ import annotations
 import pytest
-from iniconfig import IniConfig, ParseError, __all__ as ALL, _ParsedLine as PL
+from iniconfig import IniConfig, ParseError, __all__ as ALL
+from iniconfig._parse import _ParsedLine as PL
 from iniconfig import iscommentline
 from textwrap import dedent
 from pathlib import Path
@@ -58,12 +59,18 @@ def expected(input_expected: tuple[str, list[PL]]) -> list[PL]:
 
 
 def parse(input: str) -> list[PL]:
-    ini = IniConfig("sample", data="")
-    return ini._parse(input.splitlines(True))
+    from iniconfig._parse import parse_lines
+
+    return parse_lines("sample", input.splitlines(True))
 
 
-def parse_a_error(input: str) -> pytest.ExceptionInfo[ParseError]:
-    return pytest.raises(ParseError, parse, input)
+def parse_a_error(input: str) -> ParseError:
+    try:
+        parse(input)
+    except ParseError as e:
+        return e
+    else:
+        raise ValueError(input)
 
 
 def test_tokenize(input: str, expected: list[PL]) -> None:
@@ -84,18 +91,18 @@ def test_ParseError() -> None:
 
 
 def test_continuation_needs_perceeding_token() -> None:
-    excinfo = parse_a_error(" Foo")
-    assert excinfo.value.lineno == 0
+    err = parse_a_error(" Foo")
+    assert err.lineno == 0
 
 
 def test_continuation_cant_be_after_section() -> None:
-    excinfo = parse_a_error("[section]\n Foo")
-    assert excinfo.value.lineno == 1
+    err = parse_a_error("[section]\n Foo")
+    assert err.lineno == 1
 
 
 def test_section_cant_be_empty() -> None:
-    excinfo = parse_a_error("[]")
-    assert excinfo.value.lineno == 0
+    err = parse_a_error("[]")
+    assert err.lineno == 0
 
 
 @pytest.mark.parametrize(
@@ -282,7 +289,7 @@ def test_example_pypirc() -> None:
 
 
 def test_api_import() -> None:
-    assert ALL == ["IniConfig", "ParseError"]
+    assert ALL == ["IniConfig", "ParseError", "COMMENTCHARS", "iscommentline"]
 
 
 @pytest.mark.parametrize(
