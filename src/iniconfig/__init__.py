@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 
 __all__ = ["IniConfig", "ParseError"]
 
+from .exceptions import ParseError
+
 COMMENTCHARS = "#;"
 
 _D = TypeVar("_D")
@@ -37,21 +39,6 @@ class _ParsedLine(NamedTuple):
     section: str | None
     name: str | None
     value: str | None
-
-
-class ParseError(Exception):
-    path: Final[str]
-    lineno: Final[int]
-    msg: Final[str]
-
-    def __init__(self, path: str, lineno: int, msg: str):
-        Exception.__init__(self, path, lineno, msg)
-        self.path = path
-        self.lineno = lineno
-        self.msg = msg
-
-    def __str__(self) -> str:
-        return f"{self.path}:{self.lineno + 1}: {self.msg}"
 
 
 class SectionWrapper:
