@@ -1,7 +1,7 @@
-from setuptools import setup
+from setuptools import setup  # type: ignore[import]
 
 # Ensures that setuptools_scm is installed, so wheels get proper versions
-import setuptools_scm  # noqa
+import setuptools_scm  # type: ignore[import]
 
 
 def local_scheme(version: object) -> str:

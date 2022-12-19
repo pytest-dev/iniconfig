@@ -17,6 +17,7 @@ from typing import (
     cast,
 )
 
+import os
 
 if TYPE_CHECKING:
     from typing_extensions import Final
@@ -35,7 +36,7 @@ class SectionWrapper:
     config: Final[IniConfig]
     name: Final[str]
 
-    def __init__(self, config: IniConfig, name: str):
+    def __init__(self, config: IniConfig, name: str) -> None:
         self.config = config
         self.name = name
 
@@ -57,7 +58,7 @@ class SectionWrapper:
         section: Mapping[str, str] = self.config.sections.get(self.name, {})
 
         def lineof(key: str) -> int:
-            return self.config.lineof(self.name, key)  # type: ignore
+            return self.config.lineof(self.name, key)  # type: ignore[return-value]
 
         yield from sorted(section, key=lineof)
 
@@ -71,14 +72,17 @@ class IniConfig:
     sections: Final[Mapping[str, Mapping[str, str]]]
 
     def __init__(
-        self, path: str, data: str | None = None, encoding: str = "utf-8"
+        self,
+        path: str | os.PathLike[str],
+        data: str | None = None,
+        encoding: str = "utf-8",
     ) -> None:
-        self.path = str(path)  # convenience
+        self.path = os.fspath(path)
         if data is None:
             with open(self.path, encoding=encoding) as fp:
                 data = fp.read()
 
-        tokens = _parse.parse_lines(path, data.splitlines(True))
+        tokens = _parse.parse_lines(self.path, data.splitlines(True))
 
         self._sources = {}
         sections_data: dict[str, dict[str, str]]
@@ -86,15 +90,17 @@ class IniConfig:
 
         for lineno, section, name, value in tokens:
             if section is None:
-                raise ParseError(path, lineno, "no section header defined")
+                raise ParseError(self.path, lineno, "no section header defined")
             self._sources[section, name] = lineno
             if name is None:
                 if section in self.sections:
-                    raise ParseError(path, lineno, f"duplicate section {section!r}")
+                    raise ParseError(
+                        self.path, lineno, f"duplicate section {section!r}"
+                    )
                 sections_data[section] = {}
             else:
                 if name in self.sections[section]:
-                    raise ParseError(path, lineno, f"duplicate name {name!r}")
+                    raise ParseError(self.path, lineno, f"duplicate name {name!r}")
                 assert value is not None
                 sections_data[section][name] = value
 

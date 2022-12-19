@@ -10,8 +10,8 @@ class ParseError(Exception):
     lineno: Final[int]
     msg: Final[str]
 
-    def __init__(self, path: str, lineno: int, msg: str):
-        Exception.__init__(self, path, lineno, msg)
+    def __init__(self, path: str, lineno: int, msg: str) -> None:
+        super().__init__(path, lineno, msg)
         self.path = path
         self.lineno = lineno
         self.msg = msg
