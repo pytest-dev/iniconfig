@@ -1,9 +1,65 @@
 [build-system]
-requires = ["setuptools>=41.2.0", "wheel", "setuptools_scm>3"]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
-build-backend = "setuptools.build_meta"
+[project]
+name = "iniconfig"
+dynamic = ["version"]
+description = "brain-dead simple config-ini parsing"
+readme = "README.rst"
+license = "MIT"
+requires-python = ">=3.7"
+authors = [
+    { name = "Ronny Pfannschmidt", email = "opensource@ronnypfannschmidt.de" },
+    { name = "Holger Krekel", email = "holger.krekel@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/pytest-dev/iniconfig"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/iniconfig/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+]
+
+[tool.hatch.envs.test]
+dependencies = [
+  "pytest"
+]
+[tool.hatch.envs.test.scripts]
+default = "pytest"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
 [tool.setuptools_scm]
 
 [tool.mypy]
 strict = true
+
+
+[tool.pytest.ini_options]
+testpaths = "testing"

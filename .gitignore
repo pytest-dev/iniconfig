@@ -6,3 +6,4 @@ build/
 dist/
 __pycache__
 .tox/
+src/iniconfig/_version.py
