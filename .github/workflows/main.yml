@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - name: Install tox
-      run: python -m pip install --upgrade pip setuptools_scm hatch
+      run: python -m pip install --upgrade pip setuptools_scm hatch hatch-vcs
     - name: install package local
       run: pip install --no-build-isolation .
 
