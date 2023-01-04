@@ -43,7 +43,42 @@ class SectionWrapper:
     def lineof(self, name: str) -> int | None:
         return self.config.lineof(self.name, name)
 
+    @overload
+    def get(self, key: str) -> str | None:
+        ...
+
+    @overload
     def get(
+        self,
+        key: str,
+        convert: Callable[[str], _T],
+    ) -> _T | None:
+        ...
+
+    @overload
+    def get(
+        self,
+        key: str,
+        default: None,
+        convert: Callable[[str], _T],
+    ) -> _T | None:
+        ...
+
+    @overload
+    def get(self, key: str, default: _D, convert: None = None) -> str | _D:
+        ...
+
+    @overload
+    def get(
+        self,
+        key: str,
+        default: _D,
+        convert: Callable[[str], _T],
+    ) -> _T | _D:
+        ...
+
+    # TODO: investigate possible mypy bug wrt matching the passed over data
+    def get(  # type: ignore [misc]
         self,
         key: str,
         default: _D | None = None,
