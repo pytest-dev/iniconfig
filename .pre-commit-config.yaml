@@ -1,16 +1,24 @@
 repos:
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.2.0
+    rev: v3.3.1
     hooks:
     -   id: pyupgrade
         args: [--py37-plus]
--   repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.2.0
-    hooks:
-    -   id: setup-cfg-fmt
-        args: [--include-version-classifiers]
+- repo: https://github.com/tox-dev/pyproject-fmt
+  rev: "0.4.1"
+  hooks:
+    - id: pyproject-fmt
+
 - repo: https://github.com/psf/black
-  rev: 22.10.0
+  rev: 22.12.0
   hooks:
       - id: black
         language_version: python3
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v0.991' 
+    hooks:
+    -   id: mypy
+        args: []
+        additional_dependencies:
+          - "pytest==7.2.0"
+          - "tomli"

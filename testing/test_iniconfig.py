@@ -1,100 +1,108 @@
+from __future__ import annotations
 import pytest
 from iniconfig import IniConfig, ParseError, __all__ as ALL
+from iniconfig._parse import _ParsedLine as PL
 from iniconfig import iscommentline
 from textwrap import dedent
+from pathlib import Path
 
 
-check_tokens = {
-    "section": ("[section]", [(0, "section", None, None)]),
-    "value": ("value = 1", [(0, None, "value", "1")]),
+check_tokens: dict[str, tuple[str, list[PL]]] = {
+    "section": ("[section]", [PL(0, "section", None, None)]),
+    "value": ("value = 1", [PL(0, None, "value", "1")]),
     "value in section": (
         "[section]\nvalue=1",
-        [(0, "section", None, None), (1, "section", "value", "1")],
+        [PL(0, "section", None, None), PL(1, "section", "value", "1")],
     ),
     "value with continuation": (
         "names =\n Alice\n Bob",
-        [(0, None, "names", "Alice\nBob")],
+        [PL(0, None, "names", "Alice\nBob")],
     ),
     "value with aligned continuation": (
         "names = Alice\n        Bob",
-        [(0, None, "names", "Alice\nBob")],
+        [PL(0, None, "names", "Alice\nBob")],
     ),
     "blank line": (
         "[section]\n\nvalue=1",
-        [(0, "section", None, None), (2, "section", "value", "1")],
+        [PL(0, "section", None, None), PL(2, "section", "value", "1")],
     ),
     "comment": ("# comment", []),
-    "comment on value": ("value = 1", [(0, None, "value", "1")]),
-    "comment on section": ("[section] #comment", [(0, "section", None, None)]),
+    "comment on value": ("value = 1", [PL(0, None, "value", "1")]),
+    "comment on section": ("[section] #comment", [PL(0, "section", None, None)]),
     "comment2": ("; comment", []),
-    "comment2 on section": ("[section] ;comment", [(0, "section", None, None)]),
+    "comment2 on section": ("[section] ;comment", [PL(0, "section", None, None)]),
     "pseudo section syntax in value": (
         "name = value []",
-        [(0, None, "name", "value []")],
+        [PL(0, None, "name", "value []")],
     ),
-    "assignment in value": ("value = x = 3", [(0, None, "value", "x = 3")]),
-    "use of colon for name-values": ("name: y", [(0, None, "name", "y")]),
-    "use of colon without space": ("value:y=5", [(0, None, "value", "y=5")]),
-    "equality gets precedence": ("value=xyz:5", [(0, None, "value", "xyz:5")]),
+    "assignment in value": ("value = x = 3", [PL(0, None, "value", "x = 3")]),
+    "use of colon for name-values": ("name: y", [PL(0, None, "name", "y")]),
+    "use of colon without space": ("value:y=5", [PL(0, None, "value", "y=5")]),
+    "equality gets precedence": ("value=xyz:5", [PL(0, None, "value", "xyz:5")]),
 }
 
 
 @pytest.fixture(params=sorted(check_tokens))
-def input_expected(request):
+def input_expected(request: pytest.FixtureRequest) -> tuple[str, list[PL]]:
+
     return check_tokens[request.param]
 
 
 @pytest.fixture
-def input(input_expected):
+def input(input_expected: tuple[str, list[PL]]) -> str:
     return input_expected[0]
 
 
 @pytest.fixture
-def expected(input_expected):
+def expected(input_expected: tuple[str, list[PL]]) -> list[PL]:
     return input_expected[1]
 
 
-def parse(input):
-    # only for testing purposes - _parse() does not use state except path
-    ini = object.__new__(IniConfig)
-    ini.path = "sample"
-    return ini._parse(input.splitlines(True))
+def parse(input: str) -> list[PL]:
+    from iniconfig._parse import parse_lines
+
+    return parse_lines("sample", input.splitlines(True))
 
 
-def parse_a_error(input):
-    return pytest.raises(ParseError, parse, input)
+def parse_a_error(input: str) -> ParseError:
+    try:
+        parse(input)
+    except ParseError as e:
+        return e
+    else:
+        raise ValueError(input)
 
 
-def test_tokenize(input, expected):
+def test_tokenize(input: str, expected: list[PL]) -> None:
     parsed = parse(input)
     assert parsed == expected
 
 
-def test_parse_empty():
+def test_parse_empty() -> None:
     parsed = parse("")
     assert not parsed
     ini = IniConfig("sample", "")
     assert not ini.sections
 
 
-def test_ParseError():
+def test_ParseError() -> None:
     e = ParseError("filename", 0, "hello")
     assert str(e) == "filename:1: hello"
 
 
-def test_continuation_needs_perceeding_token():
-    excinfo = parse_a_error(" Foo")
-    assert excinfo.value.lineno == 0
+def test_continuation_needs_perceeding_token() -> None:
+    err = parse_a_error(" Foo")
+    assert err.lineno == 0
 
 
-def test_continuation_cant_be_after_section():
-    excinfo = parse_a_error("[section]\n Foo")
-    assert excinfo.value.lineno == 1
+def test_continuation_cant_be_after_section() -> None:
+    err = parse_a_error("[section]\n Foo")
+    assert err.lineno == 1
 
 
-def test_section_cant_be_empty():
-    excinfo = parse_a_error("[]")
-    assert excinfo.value.lineno == 0
+def test_section_cant_be_empty() -> None:
+    err = parse_a_error("[]")
+    assert err.lineno == 0
 
 
 @pytest.mark.parametrize(
@@ -103,42 +111,42 @@ def test_section_cant_be_empty():
         "!!",
     ],
 )
-def test_error_on_weird_lines(line):
+def test_error_on_weird_lines(line: str) -> None:
     parse_a_error(line)
 
 
-def test_iniconfig_from_file(tmpdir):
-    path = tmpdir / "test.txt"
-    path.write("[metadata]\nname=1")
+def test_iniconfig_from_file(tmp_path: Path) -> None:
+    path = tmp_path / "test.txt"
+    path.write_text("[metadata]\nname=1")
 
-    config = IniConfig(path=path)
+    config = IniConfig(path=str(path))
     assert list(config.sections) == ["metadata"]
-    config = IniConfig(path, "[diff]")
+    config = IniConfig(str(path), "[diff]")
     assert list(config.sections) == ["diff"]
     with pytest.raises(TypeError):
-        IniConfig(data=path.read())
+        IniConfig(data=path.read_text())  # type: ignore
 
 
-def test_iniconfig_section_first(tmpdir):
+def test_iniconfig_section_first() -> None:
     with pytest.raises(ParseError) as excinfo:
         IniConfig("x", data="name=1")
     assert excinfo.value.msg == "no section header defined"
 
 
-def test_iniconig_section_duplicate_fails():
+def test_iniconig_section_duplicate_fails() -> None:
     with pytest.raises(ParseError) as excinfo:
         IniConfig("x", data="[section]\n[section]")
     assert "duplicate section" in str(excinfo.value)
 
 
-def test_iniconfig_duplicate_key_fails():
+def test_iniconfig_duplicate_key_fails() -> None:
     with pytest.raises(ParseError) as excinfo:
         IniConfig("x", data="[section]\nname = Alice\nname = bob")
 
     assert "duplicate name" in str(excinfo.value)
 
 
-def test_iniconfig_lineof():
+def test_iniconfig_lineof() -> None:
     config = IniConfig(
         "x.ini",
         data=("[section]\nvalue = 1\n[section2]\n# comment\nvalue =2"),
@@ -154,19 +162,19 @@ def test_iniconfig_lineof():
     assert config["section2"].lineof("value") == 5
 
 
-def test_iniconfig_get_convert():
+def test_iniconfig_get_convert() -> None:
     config = IniConfig("x", data="[section]\nint = 1\nfloat = 1.1")
     assert config.get("section", "int") == "1"
     assert config.get("section", "int", convert=int) == 1
 
 
-def test_iniconfig_get_missing():
+def test_iniconfig_get_missing() -> None:
     config = IniConfig("x", data="[section]\nint = 1\nfloat = 1.1")
     assert config.get("section", "missing", default=1) == 1
     assert config.get("section", "missing") is None
 
 
-def test_section_get():
+def test_section_get() -> None:
     config = IniConfig("x", data="[section]\nvalue=1")
     section = config["section"]
     assert section.get("value", convert=int) == 1
@@ -174,19 +182,19 @@ def test_section_get():
     assert section.get("missing", 2) == 2
 
 
-def test_missing_section():
+def test_missing_section() -> None:
     config = IniConfig("x", data="[section]\nvalue=1")
     with pytest.raises(KeyError):
         config["other"]
 
 
-def test_section_getitem():
+def test_section_getitem() -> None:
     config = IniConfig("x", data="[section]\nvalue=1")
     assert config["section"]["value"] == "1"
     assert config["section"]["value"] == "1"
 
 
-def test_section_iter():
+def test_section_iter() -> None:
     config = IniConfig("x", data="[section]\nvalue=1")
     names = list(config["section"])
     assert names == ["value"]
@@ -194,7 +202,7 @@ def test_section_iter():
     assert items == [("value", "1")]
 
 
-def test_config_iter():
+def test_config_iter() -> None:
     config = IniConfig(
         "x.ini",
         data=dedent(
@@ -214,7 +222,7 @@ def test_config_iter():
     assert l[1]["value"] == "2"
 
 
-def test_config_contains():
+def test_config_contains() -> None:
     config = IniConfig(
         "x.ini",
         data=dedent(
@@ -231,7 +239,7 @@ def test_config_contains():
     assert "section2" in config
 
 
-def test_iter_file_order():
+def test_iter_file_order() -> None:
     config = IniConfig(
         "x.ini",
         data="""
@@ -250,7 +258,7 @@ b = 2
     assert list(config["section"]) == ["a", "b"]
 
 
-def test_example_pypirc():
+def test_example_pypirc() -> None:
     config = IniConfig(
         "pypirc",
         data=dedent(
@@ -280,8 +288,8 @@ def test_example_pypirc():
     assert ["repository", "username", "password"] == list(other)
 
 
-def test_api_import():
-    assert ALL == ["IniConfig", "ParseError"]
+def test_api_import() -> None:
+    assert ALL == ["IniConfig", "ParseError", "COMMENTCHARS", "iscommentline"]
 
 
 @pytest.mark.parametrize(
@@ -293,5 +301,5 @@ def test_api_import():
         " ;qwe",
     ],
 )
-def test_iscommentline_true(line):
+def test_iscommentline_true(line: str) -> None:
     assert iscommentline(line)
