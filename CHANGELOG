@@ -1,11 +1,20 @@
-1.2.0 (Unreleased)
-==========
+2.0.0 
+======
 
 * add support for Python 3.7-3.11
 * drop support for Python 2.6-3.6
 * add encoding argument defaulting to utf-8
 * inline and clarify type annotations
 * move parsing code from inline to extra file
+* add typing overloads for helper methods
+
+
+.. note::
+
+  major release due to the major changes in python versions supported + changes in packaging
+
+  the api is expected to be compatible
+
 
 1.1.1
 =====
