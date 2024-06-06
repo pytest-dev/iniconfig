@@ -1,6 +1,10 @@
 iniconfig: brain-dead simple parsing of ini files
 =======================================================
 
+.. image:: https://assets.piptrends.com/get-last-month-downloads-badge/iniconfig.svg
+    :alt: iniconfig Downloads Last Month by pip Trends
+    :target: https://piptrends.com/package/iniconfig
+
 iniconfig is a small and simple INI-file parser module
 having a unique set of features:
 
