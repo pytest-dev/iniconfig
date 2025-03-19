@@ -1,4 +1,10 @@
-2.0.0 
+2.1.0
+=====
+
+* fix artifact building - pin minimal version of hatch
+
+
+2.0.0
 ======
 
 * add support for Python 3.7-3.11
