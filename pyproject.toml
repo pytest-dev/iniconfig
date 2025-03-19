@@ -2,7 +2,7 @@
 build-backend = "hatchling.build"
 requires = [
   "hatch-vcs",
-  "hatchling>=1.26.0",
+  "hatchling>=1.26",
 ]
 
 [project]
