@@ -45,15 +45,12 @@ dev = [
 [tool.setuptools]
 packages = [ "iniconfig" ]
 package-dir = { "" = "src" }
-
-[tool.setuptools.package-data]
-iniconfig = [ "py.typed" ]
+package-data.iniconfig = [ "py.typed" ]
 
 [tool.setuptools_scm]
 write_to = "src/iniconfig/_version.py"
 
 [tool.ruff]
-
 lint.extend-select = [
   "B",  # flake8-bugbear
   "I",  # isort
@@ -63,8 +60,8 @@ lint.extend-select = [
 lint.isort.force-single-line = true
 lint.isort.known-first-party = [ "iniconfig" ]
 
-[tool.pytest.ini_options]
-testpaths = "testing"
+[tool.pytest]
+ini_options.testpaths = "testing"
 
 [tool.mypy]
 strict = true
