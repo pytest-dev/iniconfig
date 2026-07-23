@@ -13,7 +13,7 @@ having a unique set of features:
 
 If you encounter issues or have feature wishes please report them to:
 
-    https://github.com/RonnyPfannschmidt/iniconfig/issues
+    https://github.com/pytest-dev/iniconfig/issues
 
 Basic Example
 ===================================
