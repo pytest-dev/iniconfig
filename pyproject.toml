@@ -60,8 +60,8 @@ lint.extend-select = [
 lint.isort.force-single-line = true
 lint.isort.known-first-party = [ "iniconfig" ]
 
-[tool.pytest]
-ini_options.testpaths = "testing"
-
 [tool.mypy]
 strict = true
+
+[tool.pytest]
+ini_options.testpaths = "testing"
