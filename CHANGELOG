@@ -1,3 +1,9 @@
+2.3.1
+=====
+
+* fix quadratic parse time for values with many continuation lines (#78, regarding #77)
+* internal: ``iniconfig._parse.ParsedLine.value`` is now a list of lines
+
 2.3.0
 =====
 
