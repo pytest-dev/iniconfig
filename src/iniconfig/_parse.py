@@ -70,32 +70,59 @@ def parse_lines(
 ) -> list[ParsedLine]:
     result: list[ParsedLine] = []
     section = None
+    # The value of the most recently appended entry, while it's still
+    # eligible to receive continuation lines, is accumulated here as a
+    # list of fragments instead of being rebuilt as a single string on
+    # every continuation line - string-concatenating the whole value on
+    # each line made parsing an N-line continued value take O(N^2) time.
+    # `pending_fragments` mirrors the exact semantics of the original
+    # "if last.value: concat, else: replace" logic: it stays None (not
+    # yet "started") until the first non-empty fragment arrives, and
+    # every fragment from that point on is appended and later joined
+    # with "\n", matching what repeated string concatenation produced.
+    pending_index: int | None = None
+    pending_fragments: list[str] | None = None
+
+    def flush_pending() -> None:
+        nonlocal pending_index, pending_fragments
+        if pending_index is not None:
+            # If pending_fragments is None, the value never became
+            # truthy (the entry's own initial value, set at creation
+            # below, is already the correct falsy value - "" either
+            # way - so there's nothing to rewrite).
+            if pending_fragments is not None:
+                result[pending_index] = result[pending_index]._replace(
+                    value="\n".join(pending_fragments)
+                )
+            pending_index = None
+            pending_fragments = None
+
     for lineno, line in enumerate(line_iter):
         name, data = _parseline(
             path, line, lineno, strip_inline_comments, strip_section_whitespace
         )
         # new value
         if name is not None and data is not None:
+            flush_pending()
             result.append(ParsedLine(lineno, section, name, data))
+            pending_index = len(result) - 1
+            pending_fragments = [data] if data else None
         # new section
         elif name is not None and data is None:
+            flush_pending()
             if not name:
                 raise ParseError(path, lineno, "empty section name")
             section = name
             result.append(ParsedLine(lineno, section, None, None))
         # continuation
         elif name is None and data is not None:
-            if not result:
+            if pending_index is None:
                 raise ParseError(path, lineno, "unexpected value continuation")
-            last = result.pop()
-            if last.name is None:
-                raise ParseError(path, lineno, "unexpected value continuation")
-
-            if last.value:
-                last = last._replace(value=f"{last.value}\n{data}")
+            if pending_fragments:
+                pending_fragments.append(data)
             else:
-                last = last._replace(value=data)
-            result.append(last)
+                pending_fragments = [data] if data else None
+    flush_pending()
     return result
 
 
