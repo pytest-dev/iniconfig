@@ -10,7 +10,7 @@ class ParsedLine(NamedTuple):
     lineno: int
     section: str | None
     name: str | None
-    value: str | None
+    value: list[str] | None
 
 
 def parse_ini_data(
@@ -56,7 +56,7 @@ def parse_ini_data(
             if name in sections_data[section]:
                 raise ParseError(path, lineno, f"duplicate name {name!r}")
             assert value is not None
-            sections_data[section][name] = value
+            sections_data[section][name] = "\n".join(value)
 
     return sections_data, sources
 
@@ -76,7 +76,7 @@ def parse_lines(
         )
         # new value
         if name is not None and data is not None:
-            result.append(ParsedLine(lineno, section, name, data))
+            result.append(ParsedLine(lineno, section, name, [data] if data else []))
         # new section
         elif name is not None and data is None:
             if not name:
@@ -85,17 +85,10 @@ def parse_lines(
             result.append(ParsedLine(lineno, section, None, None))
         # continuation
         elif name is None and data is not None:
-            if not result:
+            value = result[-1].value if result else None
+            if value is None:
                 raise ParseError(path, lineno, "unexpected value continuation")
-            last = result.pop()
-            if last.name is None:
-                raise ParseError(path, lineno, "unexpected value continuation")
-
-            if last.value:
-                last = last._replace(value=f"{last.value}\n{data}")
-            else:
-                last = last._replace(value=data)
-            result.append(last)
+            value.append(data)
     return result
 
 
