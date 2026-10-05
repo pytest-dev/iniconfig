@@ -32,12 +32,12 @@ If you have an ini file like this:
         line1
         line2
 
-then you can do:
+use ``IniConfig.parse()`` to strip inline comments from values:
 
 .. code-block:: pycon
 
     >>> import iniconfig
-    >>> ini = iniconfig.IniConfig("example.ini")
+    >>> ini = iniconfig.IniConfig.parse("example.ini")
     >>> ini['section1']['name1'] # raises KeyError if not exists
     'value1'
     >>> ini.get('section1', 'name1b', [], lambda x: x.split(","))
@@ -52,3 +52,7 @@ then you can do:
     True
     >>> 'inexistendsection' in ini
     False
+
+The ``IniConfig()`` constructor preserves inline comments in values for backward
+compatibility. Use ``IniConfig.parse(..., strip_inline_comments=False)`` to
+preserve them when using the parsing method.
