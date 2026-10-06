@@ -2,6 +2,7 @@
 =====
 
 * fix quadratic parse time for values with many continuation lines (#78, regarding #77)
+* strip a leading UTF-8 BOM when reading INI files, which previously raised ``ParseError`` (#76)
 * internal: ``iniconfig._parse.ParsedLine.value`` is now a list of lines
 
 2.3.0
