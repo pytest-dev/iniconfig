@@ -414,7 +414,7 @@ def test_unicode_whitespace_in_key_names() -> None:
     assert config["section"]["key"] == "value"
 
 
-def test_utf8_bom_file(tmp_path):
+def test_utf8_bom_file(tmp_path: Path) -> None:
     """Files saved with a UTF-8 BOM (common on Windows editors) must parse."""
     path = tmp_path / "bom.ini"
     path.write_bytes(b"\xef\xbb\xbf[section]\nkey = value\n")
@@ -422,12 +422,12 @@ def test_utf8_bom_file(tmp_path):
     assert config["section"]["key"] == "value"
 
 
-def test_utf8_bom_in_data_string():
+def test_utf8_bom_in_data_string() -> None:
     config = IniConfig("x.ini", data="\ufeff[section]\nkey = value\n")
     assert config["section"]["key"] == "value"
 
 
-def test_parse_utf8_bom_file(tmp_path):
+def test_parse_utf8_bom_file(tmp_path: Path) -> None:
     path = tmp_path / "bom.ini"
     path.write_bytes(b"\xef\xbb\xbf[section]\nkey = value\n")
     config = IniConfig.parse(path)

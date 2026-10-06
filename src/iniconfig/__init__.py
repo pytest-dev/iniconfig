@@ -112,9 +112,6 @@ class IniConfig:
             if data is None:
                 with open(self.path, encoding=encoding) as fp:
                     data = fp.read()
-            # Strip a leading UTF-8 BOM so editors that write one still parse.
-            if data.startswith("﻿"):
-                data = data.removeprefix("﻿")
 
             # Use old behavior (no stripping) for backward compatibility
             sections_data, sources = _parse.parse_ini_data(
@@ -169,9 +166,6 @@ class IniConfig:
         if data is None:
             with open(fspath, encoding=encoding) as fp:
                 data = fp.read()
-        # Strip a leading UTF-8 BOM so editors that write one still parse.
-        if data.startswith("﻿"):
-            data = data.removeprefix("﻿")
 
         sections_data, sources = _parse.parse_ini_data(
             fspath,
