@@ -300,7 +300,7 @@ def test_example_pypirc() -> None:
 
 
 def test_api_import() -> None:
-    assert ALL == ["IniConfig", "ParseError", "COMMENTCHARS", "iscommentline"]
+    assert ALL == ["COMMENTCHARS", "IniConfig", "ParseError", "iscommentline"]
 
 
 @pytest.mark.parametrize(
