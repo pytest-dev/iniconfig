@@ -1,9 +1,11 @@
 from collections.abc import Mapping
+from typing import Final
 from typing import NamedTuple
 
 from .exceptions import ParseError
 
 COMMENTCHARS = "#;"
+UTF8_BOM: Final = "\N{BYTE ORDER MARK}"
 
 
 class ParsedLine(NamedTuple):
@@ -34,6 +36,8 @@ def parse_ini_data(
         - sections_data: mapping of section -> {name -> value}
         - sources: mapping of (section, name) -> line number
     """
+    data = data.removeprefix(UTF8_BOM)
+
     tokens = parse_lines(
         path,
         data.splitlines(True),
