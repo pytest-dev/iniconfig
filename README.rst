@@ -32,7 +32,9 @@ If you have an ini file like this:
         line1
         line2
 
-use ``IniConfig.parse()`` to strip inline comments from values:
+use ``IniConfig.parse()`` to strip inline comments from values. Inline ``#`` and
+``;`` start comments only when preceded by whitespace, so values such as URL
+fragments and semicolon-separated text remain intact:
 
 .. code-block:: pycon
 

@@ -139,8 +139,8 @@ class IniConfig:
             data: Optional INI content as string. If None, reads from path.
             encoding: Encoding to use when reading the file (default: utf-8)
             strip_inline_comments: Whether to strip inline comments from values
-                (default: True). When True, comments starting with # or ; are
-                removed from values, matching the behavior for section comments.
+                (default: True). When True, # or ; preceded by whitespace starts
+                a comment. Other occurrences remain part of the value.
             strip_section_whitespace: Whether to strip whitespace from section and key names
                 (default: False). When True, strips Unicode whitespace from section and key names,
                 addressing issue #4. When False, preserves existing behavior for backward compatibility.

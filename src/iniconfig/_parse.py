@@ -138,21 +138,24 @@ def _parseline(
         key_name = name.strip()
 
         # Strip value
-        value = value.strip()
         # Strip inline comments from values if requested (issue #55)
         if strip_inline_comments:
-            for c in COMMENTCHARS:
-                value = value.split(c)[0].rstrip()
+            value = _strip_inline_comment(value)
 
-        return key_name, value
+        return key_name, value.strip()
     # continuation
     else:
-        line = line.strip()
         # Strip inline comments from continuations if requested (issue #55)
         if strip_inline_comments:
-            for c in COMMENTCHARS:
-                line = line.split(c)[0].rstrip()
-        return None, line
+            line = _strip_inline_comment(line)
+        return None, line.strip()
+
+
+def _strip_inline_comment(value: str) -> str:
+    for index, char in enumerate(value):
+        if index and char in COMMENTCHARS and value[index - 1].isspace():
+            return value[:index]
+    return value
 
 
 def iscommentline(line: str) -> bool:

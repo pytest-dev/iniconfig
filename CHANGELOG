@@ -1,3 +1,9 @@
+Unreleased
+==========
+
+* preserve inline ``#`` and ``;`` in values unless preceded by whitespace when
+  using ``IniConfig.parse()``, including continuation lines (regarding #83)
+
 2.3.1
 =====
 

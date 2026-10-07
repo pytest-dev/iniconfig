@@ -316,6 +316,35 @@ def test_iscommentline_true(line: str) -> None:
     assert iscommentline(line)
 
 
+@pytest.mark.parametrize("continuation", [False, True])
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("http://example.org/#fragment", "http://example.org/#fragment"),
+        ("a;b", "a;b"),
+        ("a#b;c", "a#b;c"),
+        ("a#b ; comment", "a#b"),
+        ("a;b # comment", "a;b"),
+        ("a#b;still-value ; comment # later", "a#b;still-value"),
+        ("value\t# comment", "value"),
+        ("value\u00a0; comment", "value"),
+        ("value # comment; later", "value"),
+    ],
+)
+def test_parse_inline_comment_requires_whitespace(
+    value: str, expected: str, continuation: bool
+) -> None:
+    assignment = f"key =\n    {value}" if continuation else f"key = {value}"
+    config = IniConfig.parse("test.ini", data=f"[section]\n{assignment}")
+    assert config["section"]["key"] == expected
+
+
+@pytest.mark.parametrize("value", ["#literal", ";literal"])
+def test_parse_comment_marker_immediately_after_separator(value: str) -> None:
+    config = IniConfig.parse("test.ini", data=f"[section]\nkey={value}")
+    assert config["section"]["key"] == value
+
+
 def test_parse_strips_inline_comments() -> None:
     """Test that IniConfig.parse() strips inline comments from values by default."""
     config = IniConfig.parse(
@@ -332,7 +361,7 @@ def test_parse_strips_inline_comments() -> None:
     )
     assert config["section1"]["name1"] == "value1"
     assert config["section1"]["name2"] == "value2"
-    assert config["section1"]["name3"] == "value3"
+    assert config["section1"]["name3"] == "value3# no space before comment"
     assert config["section1"]["list"] == "a, b, c"
 
 
