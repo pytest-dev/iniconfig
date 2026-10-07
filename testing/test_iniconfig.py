@@ -414,6 +414,44 @@ def test_unicode_whitespace_in_section_names_with_opt_in() -> None:
     assert config["section"]["key"] == "value"
 
 
+@pytest.mark.parametrize("whitespace", [" ", "\u00a0", "\u2000", "\u3000"])
+@pytest.mark.parametrize("use_parse", [False, True])
+def test_section_whitespace_preserved_by_default(
+    whitespace: str, use_parse: bool
+) -> None:
+    name = f"{whitespace}section{whitespace}"
+    data = f"[{name}]\nkey = value\n"
+    config = (
+        IniConfig.parse("test.ini", data) if use_parse else IniConfig("test.ini", data)
+    )
+
+    assert config.sections == {name: {"key": "value"}}
+    assert config.lineof(name) == 1
+    assert config[name].lineof("key") == 2
+
+
+@pytest.mark.parametrize("whitespace", [" ", "\u00a0", "\u2000", "\u3000"])
+def test_stripped_section_names_cannot_be_duplicates(whitespace: str) -> None:
+    data = f"[section]\nkey = first\n[{whitespace}section{whitespace}]\nkey = second\n"
+
+    with pytest.raises(ParseError) as excinfo:
+        IniConfig.parse("test.ini", data, strip_section_whitespace=True)
+
+    assert excinfo.value.path == "test.ini"
+    assert excinfo.value.lineno == 2
+    assert excinfo.value.msg == "duplicate section 'section'"
+
+
+@pytest.mark.parametrize("whitespace", [" ", "\u00a0", "\u2000", "\u3000"])
+def test_stripped_section_name_cannot_be_empty(whitespace: str) -> None:
+    with pytest.raises(ParseError) as excinfo:
+        IniConfig.parse("test.ini", f"[{whitespace}]\n", strip_section_whitespace=True)
+
+    assert excinfo.value.path == "test.ini"
+    assert excinfo.value.lineno == 0
+    assert excinfo.value.msg == "empty section name"
+
+
 def test_unicode_whitespace_in_key_names() -> None:
     """Test that Unicode whitespace is stripped from key names (issue #4)."""
     config = IniConfig(
