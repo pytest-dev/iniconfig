@@ -56,3 +56,8 @@ use ``IniConfig.parse()`` to strip inline comments from values:
 The ``IniConfig()`` constructor preserves inline comments in values for backward
 compatibility. Use ``IniConfig.parse(..., strip_inline_comments=False)`` to
 preserve them when using the parsing method.
+
+When inline comment stripping is enabled, ``#`` and ``;`` start a comment only
+at the beginning of a value or after whitespace. Characters within a value,
+such as the ``#`` in ``https://example.com/#fragment`` or the ``;`` in ``a;b``,
+are preserved. The same rule applies to continuation lines.

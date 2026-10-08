@@ -332,7 +332,7 @@ def test_parse_strips_inline_comments() -> None:
     )
     assert config["section1"]["name1"] == "value1"
     assert config["section1"]["name2"] == "value2"
-    assert config["section1"]["name3"] == "value3"
+    assert config["section1"]["name3"] == "value3# no space before comment"
     assert config["section1"]["list"] == "a, b, c"
 
 
@@ -351,6 +351,40 @@ def test_parse_strips_inline_comments_from_continuations() -> None:
         ),
     )
     assert config["section"]["names"] == "Alice\nBob\nCharlie"
+
+
+@pytest.mark.parametrize("continuation", [False, True])
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("http://example.com/#fragment", "http://example.com/#fragment"),
+        ("a#b", "a#b"),
+        ("d;e", "d;e"),
+        ("a#b ; comment", "a#b"),
+        ("d;e # comment", "d;e"),
+        ("value # comment;more", "value"),
+        ("value ; comment#more", "value"),
+        ("value\t# comment", "value"),
+        ("value\u00a0; comment", "value"),
+        ("value#", "value#"),
+        ("value;", "value;"),
+    ],
+)
+def test_parse_inline_comment_boundaries(
+    value: str, expected: str, continuation: bool
+) -> None:
+    if continuation:
+        data = f"[section]\nkey =\n    {value}\n"
+    else:
+        data = f"[section]\nkey = {value}\n"
+    config = IniConfig.parse("test.ini", data=data)
+    assert config["section"]["key"] == expected
+
+
+@pytest.mark.parametrize("value", ["# comment", "; comment"])
+def test_parse_comment_only_value(value: str) -> None:
+    config = IniConfig.parse("test.ini", data=f"[section]\nkey = {value}\n")
+    assert config["section"]["key"] == ""
 
 
 def test_parse_preserves_inline_comments_when_disabled() -> None:

@@ -141,8 +141,7 @@ def _parseline(
         value = value.strip()
         # Strip inline comments from values if requested (issue #55)
         if strip_inline_comments:
-            for c in COMMENTCHARS:
-                value = value.split(c)[0].rstrip()
+            value = _strip_inline_comments(value)
 
         return key_name, value
     # continuation
@@ -150,9 +149,15 @@ def _parseline(
         line = line.strip()
         # Strip inline comments from continuations if requested (issue #55)
         if strip_inline_comments:
-            for c in COMMENTCHARS:
-                line = line.split(c)[0].rstrip()
+            line = _strip_inline_comments(line)
         return None, line
+
+
+def _strip_inline_comments(value: str) -> str:
+    for index, char in enumerate(value):
+        if char in COMMENTCHARS and (index == 0 or value[index - 1].isspace()):
+            return value[:index].rstrip()
+    return value
 
 
 def iscommentline(line: str) -> bool:
