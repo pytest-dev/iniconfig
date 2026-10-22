@@ -39,6 +39,7 @@ class SectionWrapper:
     def get(
         self,
         key: str,
+        *,
         convert: Callable[[str], _T],
     ) -> _T | None: ...
 
@@ -61,8 +62,7 @@ class SectionWrapper:
         convert: Callable[[str], _T],
     ) -> _T | _D: ...
 
-    # TODO: investigate possible mypy bug wrt matching the passed over data
-    def get(  # type: ignore [misc]
+    def get(
         self,
         key: str,
         default: _D | None = None,
@@ -193,6 +193,7 @@ class IniConfig:
         self,
         section: str,
         name: str,
+        *,
         convert: Callable[[str], _T],
     ) -> _T | None: ...
 
@@ -219,7 +220,7 @@ class IniConfig:
         convert: Callable[[str], _T],
     ) -> _T | _D: ...
 
-    def get(  # type: ignore
+    def get(
         self,
         section: str,
         name: str,
