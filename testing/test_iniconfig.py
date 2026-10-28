@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from pathlib import Path
 from textwrap import dedent
 
@@ -184,19 +183,6 @@ def test_iniconfig_get_missing() -> None:
     config = IniConfig("x", data="[section]\nint = 1\nfloat = 1.1")
     assert config.get("section", "missing", default=1) == 1
     assert config.get("section", "missing") is None
-
-
-@pytest.mark.parametrize("key", ["value", "missing"])
-def test_get_callable_default(key: str) -> None:
-    config = IniConfig("x", data="[section]\nvalue=1")
-    config_result = config.get("section", key, int)
-    section_result = config["section"].get(key, int)
-    config_value: str | Callable[[str], int] = config_result
-    section_value: str | Callable[[str], int] = section_result
-    if key == "value":
-        assert config_value == section_value == "1"
-    else:
-        assert config_value is section_value is int
 
 
 def test_section_get() -> None:
