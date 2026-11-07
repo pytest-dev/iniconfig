@@ -1,3 +1,4 @@
+import io
 from collections.abc import Mapping
 from typing import Final
 from typing import NamedTuple
@@ -38,9 +39,14 @@ def parse_ini_data(
     """
     data = data.removeprefix(UTF8_BOM)
 
+    # str.splitlines() also breaks on form feeds, vertical tabs, U+2028 and
+    # other Unicode separators. INI lines end only at \n, \r\n or \r, so
+    # read through a universal-newlines stream instead.
+    lines = io.StringIO(data, newline=None).readlines()
+
     tokens = parse_lines(
         path,
-        data.splitlines(True),
+        lines,
         strip_inline_comments=strip_inline_comments,
         strip_section_whitespace=strip_section_whitespace,
     )
