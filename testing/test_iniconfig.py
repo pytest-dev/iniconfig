@@ -442,3 +442,30 @@ def test_parse_utf8_bom_file(tmp_path: Path) -> None:
     path.write_bytes(b"\xef\xbb\xbf[section]\nkey = value\n")
     config = IniConfig.parse(path)
     assert config["section"]["key"] == "value"
+
+
+@pytest.mark.parametrize("sep", ["\x0b", "\x0c", "\x1c", "\x85", "\u2028", "\u2029"])
+def test_non_newline_line_separators_stay_in_value(sep: str) -> None:
+    """Only \\n, \\r\\n and \\r end a line; other separators belong to the value."""
+    config = IniConfig("x.ini", data=f"[section]\nkey = one{sep}two\n")
+    assert config["section"]["key"] == f"one{sep}two"
+
+
+def test_form_feed_line_does_not_shift_line_numbers() -> None:
+    config = IniConfig("x.ini", data="[section]\n\x0c\nkey = value\n")
+    assert config.lineof("section", "key") == 3
+
+
+def test_form_feed_line_error_reports_real_line() -> None:
+    with pytest.raises(ParseError) as excinfo:
+        IniConfig("x.ini", data="[section]\n\x0c\nbadline\n")
+    assert excinfo.value.lineno == 2
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+def test_line_endings(newline: str) -> None:
+    data = newline.join(["[section]", "key = value", "multi =", "  a", "  b", ""])
+    config = IniConfig.parse("x.ini", data=data)
+    assert config["section"]["key"] == "value"
+    assert config["section"]["multi"] == "a\nb"
+    assert config.lineof("section", "multi") == 3

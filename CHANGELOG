@@ -1,3 +1,10 @@
+Unreleased
+==========
+
+* split INI data only on ``\n``, ``\r\n`` and ``\r``. ``str.splitlines()`` also split on
+  form feeds, vertical tabs and Unicode separators like U+2028, which broke values
+  containing them and shifted line numbers in ``lineof()`` and ``ParseError``
+
 2.3.1
 =====
 
