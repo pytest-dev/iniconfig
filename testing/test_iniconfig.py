@@ -442,3 +442,36 @@ def test_parse_utf8_bom_file(tmp_path: Path) -> None:
     path.write_bytes(b"\xef\xbb\xbf[section]\nkey = value\n")
     config = IniConfig.parse(path)
     assert config["section"]["key"] == "value"
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+def test_universal_newlines(newline: str) -> None:
+    data = newline.join(["[section]", "key = value", "multi =", "  a", "  b", ""])
+    config = IniConfig.parse("x.ini", data=data)
+    assert config["section"]["multi"] == "a\nb"
+    assert config.lineof("section", "multi") == 3
+
+
+def test_form_feed_line_is_blank() -> None:
+    config = IniConfig.parse("x.ini", data="[a]\nk = v\n\x0c\n[b]\nx = 1\n")
+    assert config["a"]["k"] == "v"
+    assert config.lineof("b", "x") == 5
+
+
+@pytest.mark.parametrize(
+    "sep", ["\x0b", "\x0c", "\x1c", "\x1d", "\x1e", "\x85", " ", " "]
+)
+@pytest.mark.parametrize(
+    ("data", "lineno"),
+    [
+        ("[a]\nk = v\n{sep}[b]\n", 2),
+        ("[a]\nk = v\n{sep}x = 1\n", 2),
+        ("[a]\nk = one{sep}two\n", 1),
+        ("[a]\nk = v{sep}\n", 1),
+    ],
+)
+def test_other_line_separators_rejected(sep: str, data: str, lineno: int) -> None:
+    with pytest.raises(ParseError) as excinfo:
+        IniConfig.parse("x.ini", data=data.format(sep=sep))
+    assert excinfo.value.lineno == lineno
+    assert excinfo.value.msg == f"unexpected line separator U+{ord(sep):04X}"

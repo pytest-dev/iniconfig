@@ -1,6 +1,10 @@
 Unreleased
 ==========
 
+* only ``\n``, ``\r\n`` and ``\r`` end a line. ``str.splitlines()`` also split on
+  form feeds, vertical tabs, U+2028 and similar, which shifted line numbers and could
+  turn part of a value into a key or section. A line holding only form feeds is blank;
+  any other of these characters now raises ``ParseError``
 * Correct ``get()`` overloads so a callable positional default is not mistaken
   for a conversion function. Runtime behavior is unchanged.
 
