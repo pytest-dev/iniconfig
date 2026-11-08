@@ -19,3 +19,4 @@ repos:
       additional_dependencies:
         - "pytest==7.2.0"
         - "tomli"
+        - "hypothesis"
