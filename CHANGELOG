@@ -1,3 +1,9 @@
+Unreleased
+==========
+
+* Correct ``get()`` overloads so a callable positional default is not mistaken
+  for a conversion function. Runtime behavior is unchanged.
+
 2.3.1
 =====
 
