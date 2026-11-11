@@ -68,7 +68,7 @@ jobs:
         run: uv python install ${{ matrix.python }}
 
       - name: Run tests with built wheel
-        run: uv run --with dist/*.whl --with pytest pytest testing --color=yes
+        run: uv run --with dist/*.whl --with pytest --with hypothesis pytest testing --color=yes
 
   create-release:
     name: Create GitHub Release

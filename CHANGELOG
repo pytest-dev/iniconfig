@@ -1,6 +1,16 @@
 Unreleased
 ==========
 
+* **breaking:** ``\x0b``, ``\x0c``, ``\x1c``-``\x1e``, ``\x85``, U+2028 and U+2029
+  are no longer treated as line breaks and now raise ``ParseError``
+  ("unexpected line separator U+XXXX") wherever they appear, except in a line
+  holding only form feeds (a page break), which counts as blank.
+  Input that parsed before and errors now: one of these characters directly before
+  a key or section header (it used to act as a line break), or at the end of a value
+  (it used to be stripped). Remove the character, or replace it with a newline.
+* only ``\n``, ``\r\n`` and ``\r`` end a line. ``str.splitlines()`` (used for files since 2.0.0) also
+  split on the characters above, which shifted ``lineof()`` and ``ParseError`` line
+  numbers and could turn part of a value into a key or section (#90, regarding #89)
 * Correct ``get()`` overloads so a callable positional default is not mistaken
   for a conversion function. Runtime behavior is unchanged.
 

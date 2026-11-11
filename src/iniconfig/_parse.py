@@ -1,3 +1,5 @@
+import io
+import re
 from collections.abc import Mapping
 from typing import Final
 from typing import NamedTuple
@@ -6,6 +8,8 @@ from .exceptions import ParseError
 
 COMMENTCHARS = "#;"
 UTF8_BOM: Final = "\N{BYTE ORDER MARK}"
+# characters str.splitlines() treats as line breaks besides \n, \r\n and \r
+_OTHER_LINE_SEPARATORS: Final = re.compile("[\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029]")
 
 
 class ParsedLine(NamedTuple):
@@ -40,7 +44,7 @@ def parse_ini_data(
 
     tokens = parse_lines(
         path,
-        data.splitlines(True),
+        split_lines(path, data),
         strip_inline_comments=strip_inline_comments,
         strip_section_whitespace=strip_section_whitespace,
     )
@@ -63,6 +67,24 @@ def parse_ini_data(
             sections_data[section][name] = "\n".join(value)
 
     return sections_data, sources
+
+
+def split_lines(path: str, data: str) -> list[str]:
+    """Split ``data`` into lines on ``\\n``, ``\\r\\n`` and ``\\r`` only.
+
+    A line holding only form feeds (a page break) counts as blank.
+    Any other line separator ``str.splitlines()`` knows of raises
+    ``ParseError``, as its meaning in an INI file is ambiguous.
+    """
+    lines = io.StringIO(data, newline=None).readlines()
+    for lineno, line in enumerate(lines):
+        if line.rstrip("\n").strip("\x0c") == "":
+            continue
+        if match := _OTHER_LINE_SEPARATORS.search(line):
+            raise ParseError(
+                path, lineno, f"unexpected line separator U+{ord(match[0]):04X}"
+            )
+    return lines
 
 
 def parse_lines(

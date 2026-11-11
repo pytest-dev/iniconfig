@@ -39,6 +39,7 @@ urls.Homepage = "https://github.com/pytest-dev/iniconfig"
 
 [dependency-groups]
 dev = [
+  "hypothesis>=6.168.5",
   "pytest>=8.4.2",
   "pytest-xdist>=3.8",
 ]
