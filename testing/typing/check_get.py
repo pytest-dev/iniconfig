@@ -35,3 +35,8 @@ def check_section_get(s: SectionWrapper) -> None:
     assert_type(s.get("k", 0.5, convert=int), int | float)
     # A callable passed positionally is the default, not convert.
     assert_type(s.get("k", int), str | type[int])
+
+
+def check_explicit_none(c: IniConfig, s: SectionWrapper) -> None:
+    assert_type(c.get("s", "k", convert=None), str | None)
+    assert_type(s.get("k", convert=None), str | None)
