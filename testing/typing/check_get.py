@@ -5,6 +5,8 @@ Never executed; checked by mypy only.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from typing_extensions import assert_type
 
 from iniconfig import IniConfig
@@ -40,3 +42,10 @@ def check_section_get(s: SectionWrapper) -> None:
 def check_explicit_none(c: IniConfig, s: SectionWrapper) -> None:
     assert_type(c.get("s", "k", convert=None), str | None)
     assert_type(s.get("k", convert=None), str | None)
+
+
+def check_optional_convert(
+    c: IniConfig, s: SectionWrapper, conv: Callable[[str], int] | None
+) -> None:
+    assert_type(c.get("s", "k", convert=conv), int | str | None)
+    assert_type(s.get("k", convert=conv), int | str | None)
