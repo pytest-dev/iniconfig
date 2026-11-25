@@ -33,7 +33,7 @@ class SectionWrapper:
         return self.config.lineof(self.name, name)
 
     @overload
-    def get(self, key: str) -> str | None: ...
+    def get(self, key: str, *, convert: None = None) -> str | None: ...
 
     @overload
     def get(
@@ -186,6 +186,8 @@ class IniConfig:
         self,
         section: str,
         name: str,
+        *,
+        convert: None = None,
     ) -> str | None: ...
 
     @overload
